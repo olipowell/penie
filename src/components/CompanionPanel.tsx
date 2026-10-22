@@ -14,20 +14,20 @@ import {
 import { giveConsent, hasConsent } from "@/lib/autosave";
 
 const MAX_EXCERPT = 4000;
-type Msg = UIMessage<{ excerpt?: string }>;
+type Msg = UIMessage<{ excerpt?: string | undefined }>;
 
 export function CompanionPanel({ selectedText, onClose }: { selectedText: string; onClose: () => void }) {
   const [input, setInput] = useState("");
   const [share, setShare] = useState(true);
   const [askConsent, setAskConsent] = useState(false);
-  const pending = useRef<{ text: string; excerpt?: string } | null>(null);
+  const pending = useRef<{ text: string; excerpt?: string | undefined } | null>(null);
   const { messages, sendMessage, status, stop, error } = useChat<Msg>({
     transport: new DefaultChatTransport({ api: "/api/chat" }),
   });
   const busy = status === "submitted" || status === "streaming";
   const excerpt = share && selectedText ? selectedText.slice(0, MAX_EXCERPT) : undefined;
 
-  const doSend = (p: { text: string; excerpt?: string }) => {
+  const doSend = (p: { text: string; excerpt?: string | undefined }) => {
     sendMessage({ text: p.text, metadata: p.excerpt ? { excerpt: p.excerpt } : undefined });
     setInput("");
   };
