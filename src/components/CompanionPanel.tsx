@@ -28,7 +28,7 @@ export function CompanionPanel({ selectedText, onClose }: { selectedText: string
   const excerpt = share && selectedText ? selectedText.slice(0, MAX_EXCERPT) : undefined;
 
   const doSend = (p: { text: string; excerpt?: string | undefined }) => {
-    sendMessage({ text: p.text, metadata: p.excerpt ? { excerpt: p.excerpt } : undefined });
+    sendMessage({ text: p.text, metadata: { excerpt: p.excerpt } });
     setInput("");
   };
 
