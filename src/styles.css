@@ -142,3 +142,29 @@
     color: var(--color-foreground);
   }
 }
+
+/* Penie editor typography — neutral tokens, swap for brand later. */
+:root {
+  --font-writing: Georgia, "Iowan Old Style", "Times New Roman", serif;
+  --writing-size: 1.1875rem;
+  --writing-leading: 1.75;
+}
+@layer components {
+  .penie-prose {
+    font-family: var(--font-writing);
+    font-size: var(--writing-size);
+    line-height: var(--writing-leading);
+    min-height: 60vh;
+    outline: none;
+  }
+  .penie-prose p { margin: 0 0 1em; }
+  .penie-prose h1, .penie-prose h2 { font-weight: 600; margin: 1.2em 0 0.5em; }
+  .penie-prose p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    color: var(--color-muted-foreground);
+    float: left; height: 0; pointer-events: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
