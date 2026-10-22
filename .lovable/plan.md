@@ -1,78 +1,65 @@
-# Penie — MVP Plan
+# Penie — MVP Plan (revised)
 
-**For your imagination.** A calm writing space with one optional AI companion that suggests and never takes over.
+**For your imagination.** A calm writing space with one optional AI companion who is warm and curious, and who suggests but never takes over.
 
-## Guiding principles
-- **The author is in charge.** The AI only suggests. Nothing changes your text until you choose "Insert" or "Replace". Every change can be undone.
-- **One companion, not a team of agents.** One AI, with a few clear "modes" set by the instructions we give it.
-- **Proven building blocks.** Use well-tested, accessible components that already exist (buttons, panels, menus, dialogs). They handle keyboard use and screen readers properly.
-- **No accounts, payments or database to start.** Writing is saved in the person's own browser, and they can export it.
+## Decisions made
+- **AI:** Lovable's built-in AI, using a lower-cost model. The model's name is set in one place so it's easy to change.
+- **Saving:** in the browser, with reliable autosave, recovery after a crash or closed tab, and plain-text (.txt) export.
+- **Personality:** warm, curious and encouraging. Never patronising, never writes the story for you.
+- **Look:** neutral for now. All colours, fonts and spacing live in one central list of style values ("tokens"), ready for your brand.
+- **Privacy is core:** send the AI as little as possible, store nothing on the server, and always show when writing is about to leave the browser.
 
-## Recommended architecture
+## Architecture
 
 ```text
- Browser (the app)                          Lovable's server (secure)
- ┌─────────────────────────────┐           ┌──────────────────────────┐
- │ Writing space (editor)      │  request  │ One small "ask companion"│
- │ Companion panel (chat)      │ ────────▶ │ function holding the AI  │──▶ AI model
- │ Saved in this browser       │ ◀──────── │ key + Penie's guidelines │
- └─────────────────────────────┘ streamed  └──────────────────────────┘
-                                   reply
+ Browser                                   Lovable server
+ ┌───────────────────────────┐            ┌─────────────────────────┐
+ │ Editor (Tiptap)            │  only the  │ One "ask Penie" function│
+ │ Companion panel (AI chat   │  text you  │ - Penie's guidelines    │──▶ AI model
+ │   components)              │  choose ─▶ │ - model name in 1 place │
+ │ Autosave in this browser   │ ◀ streamed │ - nothing stored        │
+ └───────────────────────────┘    reply    └─────────────────────────┘
 ```
 
-- **App:** the existing project setup (one page plus a settings panel).
-- **Editor:** a proven open-source text editor (Tiptap). It's accessible and supports undo and showing suggested changes.
-- **Chat panel:** built from ready-made accessible components, with replies appearing word by word using the standard Vercel AI SDK chat tools. We don't build a chat interface from scratch.
-- **AI:** one secure server function. The AI key never reaches the browser. Penie's personality and rules (keep the author's voice, ask before rewriting, plain and kind language) live there in one place.
-- **Storage:** saved in the browser for now. Accounts and cloud sync can come later if you need them.
+Switching the AI model or provider later means changing one small server file. Nothing else needs to change.
 
-## Lovable AI vs connecting OpenAI directly
+## Ready-made parts (no custom interface components)
+- **Editor:** Tiptap, an established open-source editor with built-in undo and keyboard support.
+- **Chat panel:** AI Elements, ready-made chat components for the messages, typing box and streaming replies.
+- **Buttons, panels, dialogs and menus:** shadcn/ui, which is built on accessible Radix components.
+- **Pop-up notifications:** Sonner.
 
-| | Lovable built-in AI | Your own OpenAI key |
-|---|---|---|
-| Setup | Nothing to set up, works straight away | Create an OpenAI account, add a card, paste in a key |
-| Models | Includes OpenAI, Google and Anthropic models | OpenAI only |
-| Billing | Uses your Lovable workspace credits | Separate OpenAI bill |
-| Monitoring | Usage logs, limits and alerts built in | You manage these in OpenAI |
-| Switching later | Easy: change one key and address | Same |
+## MVP features
+1. A writing space with autosave, recovery, undo/redo, word count, focus mode and .txt export.
+2. An optional companion panel, closed by default.
+3. Three modes: Brainstorm, Develop and Improve.
+4. Suggestions appear as separate cards, apart from your writing. They only enter your text when you press "Insert" or "Replace", and a single undo reverses that.
+5. A privacy notice before anything is first sent, plus a clear label on each message saying exactly what text is being sent.
+6. Basic accessibility from day one: everything works with a keyboard, visible focus outlines, screen-reader labels, good contrast, respects the "reduce motion" setting, and readable default type.
 
-**Recommendation:** start with Lovable's built-in AI. It's simpler and just as secure, and you can switch later without redesigning anything.
-
-## Minimum features (MVP)
-
-1. **Writing space.** Full-screen and calm, with a word count, autosave, and a focus mode that hides everything except your text.
-2. **Companion panel.** Optional and closed by default. Opened with one button or a keyboard shortcut.
-3. **Three ways to get help** (simple buttons, so nobody needs to know how to write a prompt):
-   - **Brainstorm:** "Give me ideas for…", or "What could happen next?"
-   - **Develop:** questions about characters, setting and plot that help you dig deeper, rather than writing it for you.
-   - **Improve:** select some text, then get grammar, clarity or flow suggestions shown side by side, with a short reason for each.
-4. **Suggestions you control.** Each suggestion has Insert, Replace selection, Copy and Dismiss buttons. Penie never edits your text automatically, and everything can be undone.
-5. **Accessibility settings.** Choose a font (including dyslexia-friendly options), text size, line spacing, light/dark/soft theme, reduced motion, and "explain simply" replies. The whole app works with a keyboard alone.
-6. **Projects.** A small list of pieces of writing, with export as a text file or Word-compatible document.
-
-**Not included on purpose:** accounts, subscriptions, sharing, multiple AI agents, AI images, collaboration.
+**Postponed:** advanced accessibility settings, other export formats, managing multiple projects, accounts.
 
 ## Build order
-1. **Visual base:** neutral colours and fonts set up as "tokens" (one central list of style values), so your brand can be swapped in later in one place.
-2. **Writing space:** editor, autosave, word count, focus mode.
-3. **Projects list and export.**
-4. **Companion panel** connected to the AI, with free chat only.
-5. **Brainstorm / Develop / Improve buttons**, using the selected text as context.
-6. **Insert/Replace controls** with undo and side-by-side comparison.
-7. **Accessibility settings.**
-8. **Apply your brand:** logo, colours, fonts and your screen designs.
-9. **Testing:** keyboard and screen-reader checks, and a short review of the AI's tone with real writers.
+1. **Milestone 1 (building now):** neutral style tokens, the editor, autosave and recovery, undo, and a simple companion panel connected to Penie (free chat about the text you choose to share).
+2. Brainstorm / Develop / Improve buttons that use your selected text.
+3. Suggestion cards with Insert/Replace.
+4. The privacy notice and send labels refined, plus .txt export.
+5. Accessibility review.
+6. Apply your brand.
 
-Each step can be tried in the preview before moving on.
+## Privacy approach
+- By default only the text you select is sent, never the whole document. Sending the whole document needs a deliberate choice.
+- The server doesn't save your writing or the conversation, and personal content is kept out of error logs.
+- **One thing to check:** Lovable's AI service keeps basic request logs for usage and billing. I'll confirm in the project's AI settings whether the logging of message content can be turned off, and tell you what I find before we call privacy done.
 
-## Decisions that need your input
-1. **AI provider:** go with the recommended Lovable AI, or your own OpenAI key?
-2. **Saving:** is "saved in this browser, and lost if the browser data is cleared, but exportable" OK for the MVP? Or do people need to reach their writing on different devices? That would mean adding sign-in.
-3. **Penie's personality:** warm and encouraging, or more like a neutral editor? Should she be called "Penie" in the chat?
-4. **Brand files:** when you have them ready, share your logo, colour codes and fonts (or a Figma link). We can apply them at step 8, or earlier if you prefer.
+## Milestone 1 scope (to test)
+- Open the app and write. Your writing is saved automatically as you go.
+- Reload or close the tab and come back: your writing is still there.
+- Undo/redo work with buttons and keyboard shortcuts.
+- A "Penie" button opens a side panel where you can chat with her about the text you've selected, with replies appearing as she writes them. Nothing she says changes your text.
 
 ## Technical details
-- TanStack Start route `/` for the workspace. Server function `askCompanion` uses the AI SDK and the Lovable AI Gateway (`openai/gpt-6-astra`), streamed replies, and one system prompt with a mode parameter. It shows clear messages for rate-limit (429) and out-of-credits (402) errors.
-- Tiptap editor with its undo history. Suggestions are inserted as one transaction, so a single undo reverses them.
-- Accessible components from shadcn/ui (Radix). Projects stored in localStorage/IndexedDB.
-- The AI receives the selected text, or nearby paragraphs only. Nothing is stored on the server.
+- Workspace on route `/`. Server function / stream route `api/chat` uses the AI SDK with the Lovable AI Gateway. A `MODEL` constant picks a low-cost model from the live model list.
+- Tiptap StarterKit (history). Autosave to localStorage (debounced at about 500ms), plus a backup copy saved when you leave the page.
+- One system prompt for Penie, with a mode parameter added in step 2.
+- Clear messages if the AI is busy (429) or credits run out (402). Lovable Cloud is not needed.
