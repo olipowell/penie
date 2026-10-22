@@ -25,7 +25,7 @@ Switching the AI model or provider later means changing one small server file. N
 
 ## Ready-made parts (no custom interface components)
 - **Editor:** Tiptap, an established open-source editor with built-in undo and keyboard support.
-- **Chat panel:** AI Elements, ready-made chat components for the messages, typing box and streaming replies.
+- **Chat panel:** the latest shadcn/ui components (the typing box, message list, scrolling area) connected to the standard AI SDK chat tools for streaming replies. No AI Elements.
 - **Buttons, panels, dialogs and menus:** shadcn/ui, which is built on accessible Radix components.
 - **Pop-up notifications:** Sonner.
 
