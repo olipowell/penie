@@ -26,7 +26,7 @@ describe("autosave", () => {
     saveDoc(doc("There once was a man called bob"));
     const r = loadDoc();
     expect(r.kind).toBe("main");
-    expect(r.kind === "main" && r.doc.content.content?.[0].content?.[0].text).toBe("There once was a man called bob");
+    expect(r.kind === "main" && r.doc.content.content?.[0]?.content?.[0]?.text).toBe("There once was a man called bob");
   });
 
   it("falls back to the newest backup when the main copy is damaged", () => {
