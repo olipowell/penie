@@ -5,29 +5,34 @@ import Placeholder from "@tiptap/extension-placeholder";
 import { Undo2, Redo2, Download, MessageCircle, Maximize2, Minimize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { loadDoc, saveDoc } from "@/lib/autosave";
+import { loadDoc, requestPersistence, saveDoc } from "@/lib/autosave";
 import { CompanionPanel } from "@/components/CompanionPanel";
 
-type SaveState = { kind: "idle" | "saving" | "saved" | "error"; at?: number };
+type SaveState = { kind: "idle" | "saving" | "saved" | "error" | "restored" | "backup" | "empty" | "unavailable"; at?: number };
 
 export function WritingSpace() {
   const [save, setSave] = useState<SaveState>({ kind: "idle" });
   const [open, setOpen] = useState(false);
   const [focus, setFocus] = useState(false);
+  const [temporary, setTemporary] = useState(false);
   const [, force] = useState(0);
   const debounce = useRef<ReturnType<typeof setTimeout>>(undefined);
   const firstDirty = useRef<number | null>(null);
+  const restoring = useRef(true);
 
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [StarterKit, Placeholder.configure({ placeholder: "Start writing. Your story is saved here, in this browser." })],
     editorProps: { attributes: { class: "penie-prose", "aria-label": "Your writing", role: "textbox", "aria-multiline": "true" } },
     onCreate: ({ editor }) => {
-      const saved = loadDoc();
-      if (saved) {
-        editor.commands.setContent(saved.content, { emitUpdate: false });
-        setSave({ kind: "saved", at: saved.savedAt });
+      const r = loadDoc();
+      if (r.kind === "main" || r.kind === "backup") {
+        editor.commands.setContent(r.doc.content, { emitUpdate: false });
+        setSave({ kind: r.kind === "main" ? "restored" : "backup", at: r.doc.savedAt });
+      } else {
+        setSave({ kind: r.kind === "none" ? "empty" : "unavailable" });
       }
+      restoring.current = false;
       editor.commands.focus("end");
     },
     onUpdate: () => schedule(),
@@ -38,12 +43,14 @@ export function WritingSpace() {
     if (!editor || firstDirty.current === null) return;
     clearTimeout(debounce.current);
     try {
-      const at = saveDoc(editor.getJSON());
-      setSave({ kind: "saved", at });
+      const at = saveDoc(editor.getJSON(), { restoring: restoring.current });
+      if (at !== null) setSave({ kind: "saved", at });
+      firstDirty.current = null;
     } catch {
       setSave({ kind: "error" });
+      // Keep the change marked unsaved and retry shortly.
+      debounce.current = setTimeout(() => flushRef.current(), 5000);
     }
-    firstDirty.current = null;
   };
   const flushRef = useRef(flush);
   flushRef.current = flush;
@@ -59,6 +66,7 @@ export function WritingSpace() {
   }
 
   useEffect(() => {
+    void requestPersistence().then((s) => setTemporary(s === "temporary"));
     const onHide = () => flushRef.current();
     const onVis = () => document.visibilityState === "hidden" && onHide();
     document.addEventListener("visibilitychange", onVis);
@@ -83,11 +91,17 @@ export function WritingSpace() {
     URL.revokeObjectURL(url);
   };
 
+  const when = (at?: number) => (at ? new Date(at).toLocaleString([], { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "");
   const status =
     save.kind === "saving" ? "Saving…"
-    : save.kind === "error" ? "Couldn't save — check browser storage"
+    : save.kind === "error" ? "Couldn't save — your writing is only in this tab"
+    : save.kind === "unavailable" ? "Browser storage isn't available — your writing won't be saved"
+    : save.kind === "empty" ? "No saved writing found in this browser"
+    : save.kind === "restored" ? `Restored your writing from ${when(save.at)}`
+    : save.kind === "backup" ? `Restored your writing from a backup (${when(save.at)})`
     : save.at ? `Saved at ${new Date(save.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
     : "Not saved yet";
+  const fullStatus = temporary && save.kind !== "unavailable" ? `${status} · Storage may be temporary — export a .txt to keep a copy` : status;
 
   const Tool = ({ label, onClick, disabled, children, pressed }: { label: string; onClick: () => void; disabled?: boolean; children: React.ReactNode; pressed?: boolean }) => (
     <Tooltip>
