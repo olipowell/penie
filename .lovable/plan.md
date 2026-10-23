@@ -21,11 +21,14 @@ Lost **document content** points to storage or environment. Lost **conversation*
 
 ## Smallest reliable fix
 No changes to how things look beyond a short status line. No new features.
-1. **Ask the browser to keep storage permanently** (the "persistent storage" request) so it is less likely to be cleared.
+1. **Ask the browser to keep storage permanently** (the "persistent storage" request). This is best effort only: browsers can refuse it, and it is no guarantee.
 2. **Check every save:** read the saved copy back. If it doesn't match, show "Couldn't save — your writing is only in this tab" and keep retrying.
-3. **Make restoring visible:** on opening, briefly show either "Restored your writing from [date, time]" or "No saved writing found in this browser". An unexpected empty page can then be told apart from a real loss.
+3. **Make restoring visible, with three distinct states:**
+   - "Restored your writing from [date, time]" (or "…from a backup")
+   - "No saved writing found in this browser" (storage works, it's just empty)
+   - "Browser storage isn't available — your writing won't be saved" (storage blocked or failed its check)
 4. **Warn about temporary storage:** if the browser says storage may be temporary, show a quiet note suggesting .txt export or opening Penie in its own tab.
-5. **Never replace a saved non-empty copy with an empty page** unless you cleared it yourself. Existing backups stay as a safety net.
+5. **Empty-page safeguard, restoration only:** while Penie is opening and restoring, an empty page can never overwrite a saved non-empty copy. Once you are writing, deleting everything is saved normally, so clearing your writing or starting fresh on purpose still works. The previous copy also remains in the backups.
 6. Conversation: no change now, and it stays unsaved for privacy. Saving it can be its own decision later.
 
 ## Acceptance criteria
@@ -33,7 +36,8 @@ No changes to how things look beyond a short status line. No new features.
 - **Refreshing:** reloading shows the same text and "Restored your writing from…".
 - **Reopening:** closing and reopening the tab or window (same browser, same address) restores the text.
 - **Recovering:** if the main copy is damaged, the newest backup loads and the status says so.
-- **Empty start:** a first visit, or storage that can't be reached, shows "No saved writing found in this browser" rather than a silent blank page.
+- **Empty start:** a first visit shows "No saved writing found in this browser". Blocked or failing storage shows the separate storage warning instead.
+- **Intentional clear:** select everything and delete it, then reload. The page is empty, not the old text.
 - **Overnight check (manual):** open Penie in its own browser tab, write, let the laptop sleep, then reopen. The text is there. Repeat inside the Lovable preview and note any difference.
 - Conversation clears on reload, as expected.
 
