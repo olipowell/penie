@@ -6,6 +6,7 @@ import { Undo2, Redo2, Download, MessageCircle, Maximize2, Minimize2 } from "luc
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { loadDoc, requestPersistence, saveDoc } from "@/lib/autosave";
+import { KeptSelection } from "@/lib/selection";
 import { CompanionPanel } from "@/components/CompanionPanel";
 
 type SaveState = { kind: "idle" | "saving" | "saved" | "error" | "restored" | "backup" | "empty" | "unavailable"; at?: number };
@@ -19,10 +20,12 @@ export function WritingSpace() {
   const debounce = useRef<ReturnType<typeof setTimeout>>(undefined);
   const firstDirty = useRef<number | null>(null);
   const restoring = useRef(true);
+  const openRef = useRef(false);
+  openRef.current = open;
 
   const editor = useEditor({
     immediatelyRender: false,
-    extensions: [StarterKit, Placeholder.configure({ placeholder: "Start writing. Your story is saved here, in this browser." })],
+    extensions: [StarterKit, KeptSelection.configure({ active: () => openRef.current }), Placeholder.configure({ placeholder: "Start writing. Your story is saved here, in this browser." })],
     editorProps: { attributes: { class: "penie-prose", "aria-label": "Your writing", role: "textbox", "aria-multiline": "true" } },
     onCreate: ({ editor }) => {
       const r = loadDoc();
@@ -76,6 +79,10 @@ export function WritingSpace() {
       window.removeEventListener("pagehide", onHide);
     };
   }, []);
+
+  useEffect(() => {
+    if (editor && !editor.isDestroyed) editor.view.dispatch(editor.state.tr.setMeta("penieRefresh", true));
+  }, [open, editor]);
 
   const text = editor?.getText() ?? "";
   const words = text.trim() ? text.trim().split(/\s+/).length : 0;

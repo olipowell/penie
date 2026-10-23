@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import { Send, Square, X } from "lucide-react";
@@ -12,8 +12,8 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { giveConsent, hasConsent } from "@/lib/autosave";
+import { MAX_EXCERPT, excerptFor, previewOf } from "@/lib/selection";
 
-const MAX_EXCERPT = 4000;
 type Msg = UIMessage<{ excerpt?: string | undefined }>;
 
 export function CompanionPanel({ selectedText, onClose }: { selectedText: string; onClose: () => void }) {
@@ -25,7 +25,14 @@ export function CompanionPanel({ selectedText, onClose }: { selectedText: string
     transport: new DefaultChatTransport({ api: "/api/chat" }),
   });
   const busy = status === "submitted" || status === "streaming";
-  const excerpt = share && selectedText ? selectedText.slice(0, MAX_EXCERPT) : undefined;
+  const excerpt = excerptFor(selectedText, share);
+  const previewId = useId();
+  // Announce selection changes once they settle.
+  const [announce, setAnnounce] = useState("");
+  useEffect(() => {
+    const t = setTimeout(() => setAnnounce(selectedText ? `Selected ${selectedText.length} characters` : "No text selected"), 700);
+    return () => clearTimeout(t);
+  }, [selectedText]);
 
   const doSend = (p: { text: string; excerpt?: string | undefined }) => {
     sendMessage({ text: p.text, metadata: { excerpt: p.excerpt } });
@@ -80,12 +87,20 @@ export function CompanionPanel({ selectedText, onClose }: { selectedText: string
       </ScrollArea>
 
       <form onSubmit={submit} className="space-y-2 border-t p-3">
+        {selectedText && (
+          <div id={previewId} className={`rounded-md border px-3 py-2 text-xs ${share ? "" : "opacity-60"}`}>
+            <p className="font-medium">{share ? `Sharing ${Math.min(selectedText.length, MAX_EXCERPT)} characters` : "Not shared"}</p>
+            <blockquote className="mt-1 border-l-2 pl-2 italic text-muted-foreground">“{previewOf(selectedText)}”</blockquote>
+            {share && selectedText.length > MAX_EXCERPT && (
+              <p className="mt-1 text-muted-foreground">Only the first {MAX_EXCERPT.toLocaleString()} characters will be shared.</p>
+            )}
+          </div>
+        )}
+        <span className="sr-only" aria-live="polite">{announce}</span>
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Switch id="share" checked={share} onCheckedChange={setShare} />
+          <Switch id="share" checked={share && !!selectedText} disabled={!selectedText} onCheckedChange={setShare} aria-describedby={selectedText ? previewId : undefined} />
           <Label htmlFor="share" className="text-xs font-normal">
-            {selectedText
-              ? `Share my selected text (${Math.min(selectedText.length, MAX_EXCERPT)} characters)`
-              : "Share selected text (select some writing first)"}
+            {selectedText ? "Share my selected text" : "Select some writing to share it"}
           </Label>
         </div>
         <Label htmlFor="penie-input" className="sr-only">Message Penie</Label>
