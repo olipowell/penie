@@ -157,6 +157,7 @@
     min-height: 60vh;
     outline: none;
   }
+  .penie-kept-selection { background: var(--accent); color: var(--accent-foreground); border-radius: 2px; box-shadow: 0 0 0 1px var(--ring); }
   .penie-prose p { margin: 0 0 1em; }
   .penie-prose h1, .penie-prose h2 { font-weight: 600; margin: 1.2em 0 0.5em; }
   .penie-prose p.is-editor-empty:first-child::before {

@@ -23,21 +23,19 @@ export const KeptSelection = Extension.create<{ active: () => boolean }>({
   addOptions: () => ({ active: () => false }),
   addProseMirrorPlugins() {
     const opts = this.options;
+    let pmView: { hasFocus(): boolean } | null = null;
     return [
       new Plugin({
         key,
         props: {
           decorations(state) {
             const { from, to, empty } = state.selection;
-            const view = this.spec.view as { hasFocus(): boolean } | undefined;
-            if (empty || !opts.active() || view?.hasFocus()) return null;
+            if (empty || !opts.active() || !pmView || pmView.hasFocus()) return null;
             return DecorationSet.create(state.doc, [Decoration.inline(from, to, { class: "penie-kept-selection" })]);
           },
         },
         view(v) {
-          (this as unknown as { view: unknown }).view = v;
-          const spec = key.get(v.state)!.spec as { view?: unknown };
-          spec.view = v;
+          pmView = v;
           const refresh = () => v.dispatch(v.state.tr.setMeta(key, true));
           v.dom.addEventListener("focus", refresh);
           v.dom.addEventListener("blur", refresh);
