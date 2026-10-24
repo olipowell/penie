@@ -112,3 +112,64 @@ describe("PEN-028 safe accepted corrections", () => {
     expect(e.getText()).toBe(original);
   });
 });
+
+describe("PEN-028 multiple suggestions from one reply", () => {
+  const lines = ["there was was a man named bob", "who lived in an slob house"];
+  const dup = { original: "was was", replacement: "was", reason: "r", before: "there ", after: " a man" };
+  const art = { original: "an slob", replacement: "a slob", reason: "r", before: "lived in ", after: " house" };
+  const fixed = "there was a man named bob\n\nwho lived in a slob house";
+
+  it("accepts the second after the first shortens the text", () => {
+    const e = setup(lines), s = captureWriting(e);
+    expect(applySuggestion(e, s, dup)).toBe(true);
+    expect(applySuggestion(e, s, art)).toBe(true);
+    expect(e.getText()).toBe(fixed);
+  });
+  it("accepts them in reverse order", () => {
+    const e = setup(lines), s = captureWriting(e);
+    expect(applySuggestion(e, s, art)).toBe(true);
+    expect(applySuggestion(e, s, dup)).toBe(true);
+    expect(e.getText()).toBe(fixed);
+  });
+  it("each accepted suggestion is its own Undo step", () => {
+    const e = setup(lines), s = captureWriting(e);
+    applySuggestion(e, s, dup); applySuggestion(e, s, art);
+    e.commands.undo();
+    expect(e.getText()).toBe("there was a man named bob\n\nwho lived in an slob house");
+    e.commands.undo();
+    expect(e.getText()).toBe(lines.join("\n\n"));
+  });
+  it("targets the intended repeated occurrence after an earlier length change", () => {
+    const e = setup(["the the bob met bob near bob."]), s = captureWriting(e);
+    expect(applySuggestion(e, s, { original: "the the", replacement: "the", reason: "r", before: "", after: " bob met" })).toBe(true);
+    expect(applySuggestion(e, s, { original: "bob", replacement: "Bob", reason: "r", before: " met ", after: " near" })).toBe(true);
+    expect(e.getText()).toBe("the bob met Bob near bob.");
+  });
+  it("refuses overlapping suggestions", () => {
+    const e = setup(lines), s = captureWriting(e);
+    expect(applySuggestion(e, s, dup)).toBe(true);
+    const before = e.getText();
+    expect(applySuggestion(e, s, { original: "was a", replacement: "was one", reason: "r", before: "there was ", after: " man" })).toBe(false);
+    expect(e.getText()).toBe(before);
+  });
+  it("refuses remaining suggestions after the writer edits", () => {
+    const e = setup(lines), s = captureWriting(e);
+    expect(applySuggestion(e, s, dup)).toBe(true);
+    e.commands.insertContentAt(1, "Oh ");
+    const before = e.getText();
+    expect(applySuggestion(e, s, art)).toBe(false);
+    expect(e.getText()).toBe(before);
+  });
+  it("refuses remaining suggestions after Undo rather than guessing", () => {
+    const e = setup(lines), s = captureWriting(e);
+    applySuggestion(e, s, dup);
+    e.commands.undo();
+    expect(applySuggestion(e, s, art)).toBe(false);
+    expect(e.getText()).toBe(lines.join("\n\n"));
+  });
+  it("cannot accept the same suggestion twice", () => {
+    const e = setup(lines), s = captureWriting(e);
+    expect(applySuggestion(e, s, dup)).toBe(true);
+    expect(applySuggestion(e, s, dup)).toBe(false);
+  });
+});
