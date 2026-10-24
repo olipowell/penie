@@ -4,7 +4,7 @@ import StarterKit from "@tiptap/starter-kit";
 import { applySuggestion, captureWriting } from "@/lib/suggestions";
 
 const original = "There once was a man called bob\n\nHe lived in a house like a slob";
-const correction = { start: 27, original: "bob", replacement: "Bob", reason: "Names usually take a capital." };
+const correction = { start: 28, original: "bob", replacement: "Bob", reason: "Names usually take a capital." };
 let editor: Editor | undefined;
 afterEach(() => editor?.destroy());
 function setup(lines = original.split("\n\n")) {
@@ -47,7 +47,7 @@ describe("PEN-028 safe accepted corrections", () => {
   });
   it("does not join line breaks or rewrite them", () => {
     const e = setup();
-    expect(applySuggestion(e, captureWriting(e), { ...correction, start: 27, original: "bob\n\nHe", replacement: "Bob He" })).toBe(false);
+    expect(applySuggestion(e, captureWriting(e), { ...correction, start: 28, original: "bob\n\nHe", replacement: "Bob He" })).toBe(false);
     expect(e.getText()).toBe(original);
   });
 });
