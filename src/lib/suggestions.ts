@@ -20,14 +20,50 @@ export function resolveEditStart(text: string, edit: ProposedEdit): number | und
     return typeof start === "number" && Number.isInteger(start) && start >= 0 && text.slice(start, start + edit.original.length) === edit.original ? start : undefined;
   }
   if (typeof edit.before !== "string" || typeof edit.after !== "string") return undefined;
-  let found: number | undefined;
-  for (let start = text.indexOf(edit.original); start >= 0; start = text.indexOf(edit.original, start + 1)) {
-    const end = start + edit.original.length;
-    if (start < edit.before.length || text.slice(start - edit.before.length, start) !== edit.before || text.slice(end, end + edit.after.length) !== edit.after) continue;
-    if (found !== undefined) return undefined;
+  const exact = uniqueMatch(text, edit.original, edit.before, edit.after);
+  if (exact !== null) return exact;
+  // Repeated-word fixes ("was was" → "was") often arrive with context that repeats part
+  // of original ("there was " + "was was"). Remove only that verbatim overlap and retry;
+  // the result must still be an exact, unique match.
+  const before = trimOverlap(edit.before, edit.original, "end");
+  const after = trimOverlap(edit.after, edit.original, "start");
+  if (before === edit.before && after === edit.after) return undefined;
+  return uniqueMatch(text, edit.original, before, after) ?? undefined;
+}
+
+/** number = unique match, undefined = ambiguous, null = no match. */
+function uniqueMatch(text: string, original: string, before: string, after: string): number | undefined | null {
+  let found: number | null = null;
+  for (let start = text.indexOf(original); start >= 0; start = text.indexOf(original, start + 1)) {
+    const end = start + original.length;
+    if (start < before.length || text.slice(start - before.length, start) !== before || text.slice(end, end + after.length) !== after) continue;
+    if (found !== null) return undefined;
     found = start;
   }
   return found;
+}
+
+const isGap = (c: string) => c === "" || /\s/.test(c);
+
+/** Remove a whole-word piece of original that the context repeats at its edge (e.g. "there was " before "was was"). */
+function trimOverlap(context: string, original: string, edge: "start" | "end"): string {
+  for (let len = original.length - 1; len > 0; len--) {
+    if (edge === "end") {
+      // piece = leading words of original, followed in original by whitespace
+      const gap = original.charAt(len);
+      if (!/\s/.test(gap)) continue;
+      const tail = original.slice(0, len) + gap;
+      const rest = context.slice(0, context.length - tail.length);
+      if (context.endsWith(tail) && isGap(rest.charAt(rest.length - 1))) return rest;
+    } else {
+      const gap = original.charAt(original.length - len - 1);
+      if (!/\s/.test(gap)) continue;
+      const head = gap + original.slice(original.length - len);
+      const rest = context.slice(head.length);
+      if (context.startsWith(head) && isGap(rest.charAt(0))) return rest;
+    }
+  }
+  return context;
 }
 
 /** Local-only position map: AI offsets refer to the exact authorised text, not a search. */
