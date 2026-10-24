@@ -108,7 +108,7 @@ export function CompanionPanel({ open, selectedText, getPage, captureWriting, ap
   };
 
   return (
-    <aside aria-label="Penie, your writing companion" className="flex w-full max-w-md flex-col border-l bg-card">
+    <aside aria-label="Penie, your writing companion" hidden={!open} className={`${open ? "flex" : "hidden"} w-full max-w-md flex-col border-l bg-card`}>
       <div className="flex items-center justify-between border-b px-4 py-2">
         <h2 className="font-semibold">Penie</h2>
         <Button variant="ghost" size="icon" aria-label="Close Penie" onClick={onClose}><X /></Button>
@@ -198,7 +198,7 @@ export function CompanionPanel({ open, selectedText, getPage, captureWriting, ap
         </div>
       </form>
 
-      <AlertDialog open={askConsent} onOpenChange={setAskConsent}>
+      <AlertDialog open={open && askConsent} onOpenChange={setAskConsent}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Before Penie replies</AlertDialogTitle>
