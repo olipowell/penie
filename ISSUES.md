@@ -15,31 +15,41 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 - **Type:** Confirmed bug · Usability observation · Enhancement · Verification task
 - **Priority:** P1 data loss, privacy or blocks use · P2 accessibility, comprehension or overload · P3 polish · P4 later
 - **Status:** Reported → Investigating → Fix proposed → Fixed – awaiting verification → Verified → Closed. Also: Deferred · Won't fix · Possible duplicate of PEN-x
-- **Sources:** BR01 = Bug Report 01 (testing session) · M1 = Milestone 1 build review · BUG01-BUILD / BUG02-BUILD = fix builds
+- **Sources:** BR01 = Bug Report 01 · BR02 = Bug Report 02 (testing sessions) · M1 = Milestone 1 build review · BUG01-BUILD / BUG02-BUILD = fix builds
 
 ## Summary
 
 | ID | Title | Type | Category | Pri | Status | Source | Related |
 |---|---|---|---|---|---|---|---|
-| PEN-001 | Writing disappeared after leaving Penie open overnight | Confirmed bug (cause unconfirmed) | Saving & recovery | P1 | Safeguards implemented; cause unconfirmed; overnight check pending | BR01 | PEN-003, PEN-004 |
+| PEN-001 | Writing disappeared after leaving Penie open overnight | Confirmed bug (cause unconfirmed) | Saving & recovery | P1 | Verified in own browser (BR02); Lovable preview/app still differs | BR01, BR02 | PEN-003, PEN-004, PEN-018 |
 | PEN-002 | Conversation clears on reload | Usability observation | Companion | P3 | Deferred (by design, privacy) | BR01 | PEN-001 |
 | PEN-003 | Blank start looked the same as storage failure | Confirmed bug | Saving & recovery | P1 | Fixed – awaiting verification | BR01 investigation | PEN-001 |
 | PEN-004 | Saves not checked by reading back | Confirmed bug | Saving & recovery | P1 | Fixed – awaiting verification | BR01 investigation | PEN-001 |
-| PEN-005 | Selection highlight vanishes when clicking into Penie | Confirmed bug | Selection & sharing | P2 | Fixed – awaiting verification | BR01 | PEN-006 |
-| PEN-006 | Unclear which text is being shared | Usability observation | Selection & sharing | P2 | Fixed – awaiting verification | BR01 | PEN-005, PEN-007, PEN-014 |
-| PEN-007 | Share switch on with nothing selected; 4,000-char limit not stated | Usability observation | Selection & sharing | P2 | Fixed – awaiting verification | BR01 investigation | PEN-006 |
-| PEN-008 | Kept-selection outline subtle in neutral colours | Usability observation | Visual | P3 | Deferred until branding | BUG02-BUILD | PEN-005 |
+| PEN-005 | Selection highlight vanishes when clicking into Penie | Confirmed bug | Selection & sharing | P2 | Reopened (BR02) | BR01, BR02 | PEN-006, PEN-019, PEN-020 |
+| PEN-006 | Unclear which text is being shared | Usability observation | Selection & sharing | P2 | Fixed – awaiting verification | BR01 | PEN-005, PEN-007, PEN-014, PEN-021 |
+| PEN-007 | Share switch on with nothing selected; 4,000-char limit not stated | Usability observation | Selection & sharing | P2 | Fixed – awaiting verification | BR01 investigation | PEN-006, PEN-021 |
+| PEN-008 | Kept-selection outline subtle in neutral colours | Usability observation | Visual | P3 | Deferred until branding; see PEN-019 | BUG02-BUILD | PEN-005, PEN-019, PEN-020 |
 | PEN-009 | Sharing preview not tested with a screen reader | Verification task | Accessibility | P2 | Outstanding | BUG02-BUILD | PEN-006 |
 | PEN-010 | AI content logging / retention | Verification task | Privacy | P1 | AI app context disabled (done); provider retention question open | M1 | PEN-017 |
 | PEN-011 | AI usage safeguards are best effort only | Enhancement | Reliability / cost | P2 | Outstanding (set workspace spending cap) | M1 | — |
-| PEN-012 | Penie's replies too long; cognitive overload | Usability observation | Companion voice | P2 | Reported | BR01 | PEN-013 |
-| PEN-013 | Formal language; Penie refers to herself in third person | Usability observation | Companion voice | P2 | Reported | BR01 | PEN-012 |
+| PEN-012 | Penie's replies too long; cognitive overload | Usability observation | Companion voice | P2 | Reported | BR01 | PEN-013, PEN-024 |
+| PEN-013 | Formal language; Penie refers to herself in third person | Usability observation | Companion voice | P2 | Reported | BR01 | PEN-012, PEN-024 |
 | PEN-014 | Repetitive privacy messaging | Usability observation | Privacy / comprehension | P2 | Reported | BR01 | PEN-006 |
 | PEN-015 | Typography and line spacing for comfortable reading | Usability observation | Editor / accessibility | P2 | Reported | BR01 | PEN-016 |
 | PEN-016 | Saved writing preferences (font, spacing, size) | Enhancement | Accessibility | P3 | Reported | BR01 | PEN-015 |
 | PEN-017 | Optional writing context and personalisation | Enhancement | Companion | P3 | Reported (needs privacy review) | BR01 | PEN-010 |
+| PEN-018 | Browser writing not shared with Lovable app, other browsers or phones | Usability observation (expected; sync needs accounts) | Saving & recovery | P3 | Deferred (Future Roadmap) | BR02 | PEN-001 |
+| PEN-019 | Highlight changes style (fill plus outline) when clicking into Penie | Confirmed bug | Selection & sharing | P2 | Reported | BR02 | PEN-005, PEN-008 |
+| PEN-020 | Highlight disappears when Penie closes; should belong to the writer, one pale red style | Confirmed bug / behaviour change | Selection & sharing | P2 | Reported | BR02 | PEN-005, PEN-019 |
+| PEN-021 | Sharing preview card is clutter; keep only a simple "Share selected text" switch | Usability observation | Selection & sharing | P2 | Reported | BR02 | PEN-006, PEN-007 |
+| PEN-022 | Selection count in top bar ("19 characters, 5 words selected") fading in over word count | Enhancement | Editor | P3 | Reported | BR02 | PEN-021, PEN-027 |
+| PEN-023 | Remove "Penie" title in panel; show welcome text only once | Usability observation | Companion | P3 | Reported | BR02 | PEN-014 |
+| PEN-024 | Penie asks you to paste text instead of looking at your writing; too many options | Confirmed bug | Companion voice / privacy | P1 | Reported (needs your privacy decision) | BR02 | PEN-012, PEN-013, PEN-010 |
+| PEN-025 | Not clear how to leave focus mode; worry about losing writing | Usability observation | Accessibility | P2 | Reported | BR02 | PEN-026 |
+| PEN-026 | Focus mode button: moon icon + "Focus mode", aligned to writing-area edge, visible in focus mode | Enhancement | Editor | P3 | Reported | BR02 | PEN-025 |
+| PEN-027 | Move Export left of "Ask Penie"; "Download selection" vs "Download page" | Enhancement | Editor | P3 | Reported | BR02 | PEN-022 |
 
-**Recommended next order:** verify PEN-001 and PEN-003 to PEN-007 → PEN-012 and PEN-013 (one change to Penie's guidelines) → PEN-014 → PEN-015 → PEN-009. Enhancements follow the matching roadmap milestones.
+**Recommended next order (24 Oct):** PEN-019 + PEN-020 (highlight) → PEN-021 + PEN-022 + PEN-023 (panel tidy-up) → PEN-025 + PEN-026 (focus mode) → PEN-024 privacy decision, then PEN-012/013/024 together → PEN-027 → remaining items (PEN-014, PEN-015, PEN-009). Enhancements follow the matching roadmap milestones.
 
 ---
 
@@ -52,7 +62,7 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 - **Fix (safeguards):** best-effort persistent-storage request, read-back check on every save, three distinct restore statuses, empty-page overwrite guard during restoration only.
 - **Tests:** autosave unit tests pass.
 - **Outstanding:** manual overnight check in its own browser tab and in the Lovable preview/desktop app; note whether "Storage may be temporary" appears.
-- **History:** 23 Oct — investigated; safeguards built (BUG01-BUILD).
+- **History:** 23 Oct — investigated; safeguards built (BUG01-BUILD). 24 Oct — BR02: survived refresh, tab close and overnight in own browser tab. Browser and Lovable app versions differ (see PEN-018).
 
 ### PEN-002 — Conversation clears on reload
 - **Source:** BR01. **Type:** Usability observation. **P3**
@@ -80,14 +90,14 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 - **Fix:** the passage stays outlined in the editor while focus is in Penie's panel. The outline is display-only and never saved.
 - **Tests:** browser check showed the outline persists and clears on return.
 - **Outstanding:** your manual verification.
-- **History:** 23 Oct — fixed (BUG02-BUILD).
+- **History:** 23 Oct — fixed (BUG02-BUILD). 24 Oct — reopened by BR02: style changes on clicking into Penie and highlight vanishes on close (PEN-019, PEN-020).
 
 ### PEN-006 — Unclear which text is being shared
 - **Source:** BR01. **Type:** Usability observation. **P2**
 - **Fix:** preview card in the panel ("Sharing X characters" plus a quote of the start and end).
 - **Tests:** preview/truncation unit tests pass.
 - **Outstanding:** your manual verification; a real send has not been checked on screen.
-- **History:** 23 Oct — fixed (BUG02-BUILD).
+- **History:** 23 Oct — fixed (BUG02-BUILD). 24 Oct — BR02 finds the preview card cluttered (PEN-021).
 
 ### PEN-007 — Share switch on with nothing selected; 4,000-char limit not stated
 - **Source:** BR01 investigation. **Type:** Usability observation. **P2**
@@ -145,6 +155,59 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 - **Description:** writers can optionally tell Penie about their project, goals or needs.
 - **Note:** needs a privacy review (what is sent, where it's stored). Related to PEN-010.
 
+### PEN-018 — Writing not shared across the Lovable app, browsers or phones
+- **Source:** BR02. **Type:** Usability observation. **P3**
+- **Findings:** expected. Writing is stored per browser; the Lovable app and the browser are separate. Syncing across devices would need accounts, outside the prototype.
+- **Status:** Deferred (Future Roadmap). **History:** 24 Oct — registered.
+
+### PEN-019 — Highlight changes style when clicking into Penie
+- **Source:** BR02. **Type:** Confirmed bug. **P2**
+- **Description:** the selection switches to a different fill plus outline when focus moves to Penie. There should be one highlight style (pale red for now) with no other changes.
+- **History:** 24 Oct — registered.
+
+### PEN-020 — Highlight disappears when Penie closes
+- **Source:** BR02. **Type:** Confirmed bug / behaviour change. **P2**
+- **Description:** the highlight belongs to the writer; it should stay whether Penie is open or closed. Penie must not override it.
+- **History:** 24 Oct — registered.
+
+### PEN-021 — Sharing preview card is clutter
+- **Source:** BR02. **Type:** Usability observation. **P2**
+- **Description:** remove "Sharing X characters" and the quote above the message box; keep only a "Share selected text" switch. Count moves to the writing space (PEN-022).
+- **Note:** must still show clearly when writing leaves the browser.
+- **History:** 24 Oct — registered.
+
+### PEN-022 — Selection details in the top bar
+- **Source:** BR02. **Type:** Enhancement. **P3**
+- **Description:** when text is selected, the word count fades out and "19 characters, 5 words selected" fades in.
+- **History:** 24 Oct — registered.
+
+### PEN-023 — Remove panel title; welcome text once
+- **Source:** BR02. **Type:** Usability observation. **P3**
+- **Description:** "Ask Penie" already names her, so drop the "Penie" heading in the panel (no branding there for now). Show the welcome text only the first time.
+- **History:** 24 Oct — registered.
+
+### PEN-024 — Penie asks you to paste text instead of reading your writing
+- **Source:** BR02. **Type:** Confirmed bug. **P1**
+- **Description:** "check my punctuation" and "check the text on the left" got replies asking to paste text, plus a list of options. Simple tasks should feel utilitarian, with no extra questions.
+- **Findings:** Penie only receives selected text, so she can't see the page.
+- **Needs your decision:** letting Penie read the whole page on request changes the privacy promise ("the rest of your document is never sent").
+- **History:** 24 Oct — registered.
+
+### PEN-025 — Not clear how to leave focus mode
+- **Source:** BR02. **Type:** Usability observation (accessibility). **P2**
+- **Description:** with focus mode on, there is no visible way out, which caused worry about losing writing. One exit button should stay visible.
+- **History:** 24 Oct — registered.
+
+### PEN-026 — Focus mode button placement and icon
+- **Source:** BR02. **Type:** Enhancement. **P3**
+- **Description:** moon icon with "Focus mode" label, kept in the top bar, moon aligned to the edge of the writing area (not the padding) so it's not left floating.
+- **History:** 24 Oct — registered.
+
+### PEN-027 — Export placement and selection download
+- **Source:** BR02. **Type:** Enhancement. **P3**
+- **Description:** move Export left of "Ask Penie", fixed in place even when selection details fade in. With a selection its label becomes "Download selection", otherwise "Download page" / "Export .txt".
+- **History:** 24 Oct — registered.
+
 ---
 
 ## Future Roadmap (not issues, no PEN IDs)
@@ -153,3 +216,4 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 3. .txt export and refined send labels
 4. Accessibility review
 5. Apply the brand
+6. Sync writing across browsers and devices (needs accounts; see PEN-018)
