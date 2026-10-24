@@ -43,17 +43,19 @@ function uniqueMatch(text: string, original: string, before: string, after: stri
   return found;
 }
 
+const isGap = (c: string) => c === "" || /\s/.test(c);
+
 /** Remove the longest whole-word overlap between a context edge and original. */
 function trimOverlap(context: string, original: string, edge: "start" | "end"): string {
   for (let len = Math.min(context.length, original.length); len > 0; len--) {
     if (edge === "end") {
       const piece = original.slice(0, len);
       const rest = context.slice(0, context.length - len);
-      if (context.endsWith(piece) && /(^|\s)$/.test(rest) && /(\s|$)/.test(original.charAt(len))) return rest;
+      if (context.endsWith(piece) && /(^|\s)$/.test(rest) && isGap(original.charAt(len))) return rest;
     } else {
       const piece = original.slice(original.length - len);
       const rest = context.slice(len);
-      if (context.startsWith(piece) && /^(\s|$)/.test(rest) && /(^|\s)$/.test(original.slice(0, original.length - len))) return rest;
+      if (context.startsWith(piece) && /^(\s|$)/.test(rest) && isGap(original.charAt(original.length - len - 1))) return rest;
     }
   }
   return context;
