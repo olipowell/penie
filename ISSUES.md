@@ -77,7 +77,7 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
   - After permission is revoked (or expires on reload), don't resend earlier shared writing, including passages quoted in earlier messages.
   - A working **Clear conversation** control ships in the same milestone.
   - Page-reading permission stays temporary and is never saved.
-- **History:** 23 Oct — confirmed expected behaviour. 24 Oct — reopened by BR03; requirements recorded.
+- **History:** 23 Oct — confirmed expected behaviour. 24 Oct — reopened by BR03; requirements recorded. 24 Oct — drawer close/reopen fixed (implementation transferred from Oli's verified local export): the panel now stays mounted and is only hidden, so the in-memory conversation, suggestion snapshots and pending page permission survive closing and reopening via either close button; revocation (Stop) also survives. Refresh/reload persistence remains deferred (no permanent conversation storage yet; a reload still clears chat and page-reading permission, as required). Tests: 4 new WritingSpace-level regression tests with the real CompanionPanel/useChat and simulated streams (both close buttons, no extra API request or storage writes on reopen, pending permission stays pending, revocation survives, fresh mount starts empty) — all pass; full suite 43/43; TypeScript clean; live preview check with a real reply passed. Awaiting Oli's check.
 
 ### PEN-003 — Blank start looked the same as storage failure
 - **Source:** BR01 investigation. **Type:** Confirmed bug. **P1**
