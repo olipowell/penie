@@ -44,12 +44,12 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 | PEN-021 | Sharing preview card is clutter; keep only a simple "Share selected text" switch | Usability observation | Selection & sharing | P2 | Reported | BR02 | PEN-006, PEN-007 |
 | PEN-022 | Selection count in top bar ("19 characters, 5 words selected") fading in over word count | Enhancement | Editor | P3 | Reported | BR02 | PEN-021, PEN-027 |
 | PEN-023 | Remove "Penie" title in panel; show welcome text only once | Usability observation | Companion | P3 | Reported | BR02 | PEN-014 |
-| PEN-024 | Penie asks you to paste text instead of looking at your writing; too many options | Confirmed bug | Companion voice / privacy | P1 | Reported (needs your privacy decision) | BR02 | PEN-012, PEN-013, PEN-010 |
+| PEN-024 | Penie asks you to paste text instead of looking at your writing; too many options | Confirmed bug | Companion voice / privacy | P1 | Fixed – awaiting your check | BR02 | PEN-012, PEN-013, PEN-010 |
 | PEN-025 | Not clear how to leave focus mode; worry about losing writing | Usability observation | Accessibility | P2 | Reported | BR02 | PEN-026 |
 | PEN-026 | Focus mode button: moon icon + "Focus mode", aligned to writing-area edge, visible in focus mode | Enhancement | Editor | P3 | Reported | BR02 | PEN-025 |
 | PEN-027 | Move Export left of "Ask Penie"; "Download selection" vs "Download page" | Enhancement | Editor | P3 | Reported | BR02 | PEN-022 |
 
-**Recommended next order (24 Oct):** PEN-019 + PEN-020 (highlight) → PEN-021 + PEN-022 + PEN-023 (panel tidy-up) → PEN-025 + PEN-026 (focus mode) → PEN-024 privacy decision, then PEN-012/013/024 together → PEN-027 → remaining items (PEN-014, PEN-015, PEN-009). Enhancements follow the matching roadmap milestones.
+**Recommended next order (24 Oct):** PEN-019 + PEN-020 (highlight) → PEN-021 + PEN-022 + PEN-023 (panel tidy-up) → PEN-025 + PEN-026 (focus mode) → PEN-012/013 (PEN-024 built 24 Oct, awaiting your check) → PEN-027 → remaining items (PEN-014, PEN-015, PEN-009). Enhancements follow the matching roadmap milestones.
 
 ---
 
@@ -139,6 +139,7 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 - **Source:** BR01. **Type:** Usability observation. **P2**
 - **Description:** privacy notices and labels repeat too often and add noise.
 - **Note:** must keep showing clearly when writing leaves the browser. Related to the PEN-006 preview card. Wording to be confirmed.
+- **History:** 24 Oct — PEN-024 reworded the first-send notice and the line under the message box; repetition itself not yet addressed.
 
 ### PEN-015 — Typography and line spacing
 - **Source:** BR01. **Type:** Usability observation. **P2**
@@ -190,8 +191,11 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 - **Source:** BR02. **Type:** Confirmed bug. **P1**
 - **Description:** "check my punctuation" and "check the text on the left" got replies asking to paste text, plus a list of options. Simple tasks should feel utilitarian, with no extra questions.
 - **Findings:** Penie only receives selected text, so she can't see the page.
-- **Needs your decision:** letting Penie read the whole page on request changes the privacy promise ("the rest of your document is never sent").
-- **History:** 24 Oct — registered.
+- **Decision (24 Oct):** Penie may read the page, but only after asking: Allow once / Allow for this page / Not now.
+- **Fix:** Penie asks to read the page when a message is about the writing and nothing is selected. A selection always comes first; if text is selected but sharing is off, nothing is shared and Penie doesn't fall back to the page. "Allow for this page" lasts until reload and shows "Penie can read this page" with a Stop button. Pages over 12,000 characters aren't sent. Earlier page reads and selections aren't resent with later messages. Privacy notice reworded (saved locally; sent to the AI provider only when you allow). Short instruction added for simple checks to get direct answers.
+- **Tests:** 7 new automated checks (selection beats page, share-off has no fallback, size limit, no resending). Preview run: "hi" didn't ask; "check my punctuation" asked; Allow once sent the page once; the next request asked again; Not now sent nothing; Allow for this page read without asking; Stop made Penie ask again; after reload permission was gone and she asked again; selection with sharing off sent nothing.
+- **Outstanding:** your own check. Penie's decision to ask is made by the AI: on early runs she sometimes asked you to paste on a follow-up; after an instruction fix she asked 4 out of 4 times, but it isn't guaranteed. Asking for the page also uses an extra request against the 8-a-minute limit.
+- **History:** 24 Oct — registered. 24 Oct — decision recorded, built and tested.
 
 ### PEN-025 — Not clear how to leave focus mode
 - **Source:** BR02. **Type:** Usability observation (accessibility). **P2**

@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { useChat } from "@ai-sdk/react";
-import { DefaultChatTransport, type UIMessage } from "ai";
+import { DefaultChatTransport, lastAssistantMessageIsCompleteWithToolCalls, type UIMessage } from "ai";
 import { Send, Square, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,20 +12,52 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { giveConsent, hasConsent } from "@/lib/autosave";
-import { MAX_EXCERPT, excerptFor, previewOf } from "@/lib/selection";
+import { MAX_EXCERPT, PAGE_TOOL, contextFor, minimiseHistory, pageOutput, previewOf, type PageOutput } from "@/lib/selection";
 
 type Msg = UIMessage<{ excerpt?: string | undefined }>;
 
-export function CompanionPanel({ selectedText, onClose }: { selectedText: string; onClose: () => void }) {
+export function CompanionPanel({ selectedText, getPage, pageAllowed, setPageAllowed, onClose }: {
+  selectedText: string;
+  getPage: () => string;
+  /** "Allow for this page" — kept in memory only; a reload resets it. */
+  pageAllowed: boolean;
+  setPageAllowed: (v: boolean) => void;
+  onClose: () => void;
+}) {
   const [input, setInput] = useState("");
   const [share, setShare] = useState(true);
   const [askConsent, setAskConsent] = useState(false);
   const pending = useRef<{ text: string; excerpt?: string | undefined } | null>(null);
-  const { messages, sendMessage, status, stop, error } = useChat<Msg>({
-    transport: new DefaultChatTransport({ api: "/api/chat" }),
+  const ctx = contextFor(selectedText, share);
+  const excerpt = ctx.excerpt;
+  // Refs so the transport/tool handler always see the latest choices.
+  const allowToolRef = useRef(ctx.allowPageTool);
+  const pageAllowedRef = useRef(pageAllowed);
+  const getPageRef = useRef(getPage);
+  allowToolRef.current = ctx.allowPageTool;
+  pageAllowedRef.current = pageAllowed;
+  getPageRef.current = getPage;
+  const [transport] = useState(() => new DefaultChatTransport<Msg>({
+    api: "/api/chat",
+    prepareSendMessagesRequest: ({ messages, body }) => ({
+      // Earlier shared writing isn't resent; the page tool is offered only with no selection.
+      body: { ...body, messages: minimiseHistory(messages), allowPageTool: allowToolRef.current },
+    }),
+  }));
+  const { messages, sendMessage, status, stop, error, addToolOutput } = useChat<Msg>({
+    transport,
+    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
+    onToolCall: ({ toolCall }) => {
+      if (toolCall.toolName !== PAGE_TOOL) return;
+      // Only auto-answer when the writer chose "Allow for this page"; otherwise the card asks.
+      if (pageAllowedRef.current) {
+        void addToolOutput({ tool: PAGE_TOOL as never, toolCallId: toolCall.toolCallId, output: pageOutput(getPageRef.current()) as never });
+      }
+    },
   });
+  const answer = (toolCallId: string, output: PageOutput) =>
+    void addToolOutput({ tool: PAGE_TOOL as never, toolCallId, output: output as never });
   const busy = status === "submitted" || status === "streaming";
-  const excerpt = excerptFor(selectedText, share);
   const previewId = useId();
   // Announce selection changes once they settle.
   const [announce, setAnnounce] = useState("");
@@ -68,6 +100,7 @@ export function CompanionPanel({ selectedText, onClose }: { selectedText: string
           )}
           {messages.map((m) => {
             const text = m.parts.map((p) => (p.type === "text" ? p.text : "")).join("");
+            const pageParts = m.parts.filter((p) => p.type === `tool-${PAGE_TOOL}`) as unknown as { toolCallId: string; state: string; output?: PageOutput }[];
             return m.role === "user" ? (
               <div key={m.id} className="ml-8 space-y-1">
                 {m.metadata?.excerpt && (
@@ -78,7 +111,13 @@ export function CompanionPanel({ selectedText, onClose }: { selectedText: string
                 <div className="whitespace-pre-wrap rounded-lg bg-primary px-3 py-2 text-sm text-primary-foreground">{text}</div>
               </div>
             ) : (
-              <div key={m.id} className="whitespace-pre-wrap text-sm leading-relaxed">{text || "…"}</div>
+              <div key={m.id} className="space-y-2">
+                {pageParts.map((p) => <PageRequest key={p.toolCallId} part={p}
+                  onOnce={() => answer(p.toolCallId, pageOutput(getPage()))}
+                  onAlways={() => { setPageAllowed(true); answer(p.toolCallId, pageOutput(getPage())); }}
+                  onDeny={() => answer(p.toolCallId, { denied: true })} />)}
+                {(text || pageParts.length === 0) && <div className="whitespace-pre-wrap text-sm leading-relaxed">{text || "…"}</div>}
+              </div>
             );
           })}
           {status === "submitted" && <p className="text-sm text-muted-foreground">Penie is thinking…</p>}
@@ -97,6 +136,12 @@ export function CompanionPanel({ selectedText, onClose }: { selectedText: string
           </div>
         )}
         <span className="sr-only" aria-live="polite">{announce}</span>
+        {pageAllowed && (
+          <div className="flex items-center justify-between rounded-md border px-3 py-1 text-xs text-muted-foreground">
+            <span>Penie can read this page</span>
+            <Button type="button" size="sm" variant="ghost" onClick={() => setPageAllowed(false)}>Stop</Button>
+          </div>
+        )}
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Switch id="share" checked={share && !!selectedText} disabled={!selectedText} onCheckedChange={setShare} aria-describedby={selectedText ? previewId : undefined} />
           <Label htmlFor="share" className="text-xs font-normal">
@@ -114,7 +159,12 @@ export function CompanionPanel({ selectedText, onClose }: { selectedText: string
           rows={3}
         />
         <div className="flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">Only this message{excerpt ? " and your selection" : ""} leave the browser.</span>
+          <span className="text-xs text-muted-foreground">
+            {excerpt ? "This message and your selection will be sent."
+              : selectedText ? "Only this message will be sent."
+              : pageAllowed ? "This message will be sent. Penie can read this page."
+              : "Only this message will be sent. Penie will ask before reading your page."}
+          </span>
           {busy ? (
             <Button type="button" size="sm" variant="outline" onClick={stop}><Square /> Stop</Button>
           ) : (
@@ -129,8 +179,8 @@ export function CompanionPanel({ selectedText, onClose }: { selectedText: string
             <AlertDialogTitle>Before Penie replies</AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-2">
-                <p>Your writing is saved only in this browser. When you message Penie, your message — and any text you choose to share — is sent to an AI service to create a reply.</p>
-                <p>Penie doesn't store your writing or conversations. The rest of your document is never sent.</p>
+                <p>Your writing is saved locally in this browser. When you message Penie, your message is sent to an AI provider to create a reply.</p>
+                <p>Your writing is sent only when you allow it: a passage you select and choose to share, or your page when Penie asks and you say yes.</p>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -143,6 +193,31 @@ export function CompanionPanel({ selectedText, onClose }: { selectedText: string
         </AlertDialogContent>
       </AlertDialog>
     </aside>
+  );
+}
+
+function PageRequest({ part, onOnce, onAlways, onDeny }: {
+  part: { state: string; output?: PageOutput };
+  onOnce: () => void; onAlways: () => void; onDeny: () => void;
+}) {
+  const o = part.output;
+  if (part.state === "output-available" && o) {
+    const note = "page" in o ? `Shared this page (${o.page.trim().split(/\s+/).filter(Boolean).length} words)`
+      : "denied" in o ? "Page not shared"
+      : "tooLong" in o ? `Page not shared — too long to read in full (${o.words} words). Select the part you want help with.`
+      : "Shared earlier";
+    return <p className="text-xs text-muted-foreground">{note}</p>;
+  }
+  if (part.state !== "input-available") return null;
+  return (
+    <div role="group" aria-label="Penie asks to read your page" className="space-y-2 rounded-md border p-3 text-sm">
+      <p>Penie would like to read this page to help.</p>
+      <div className="flex flex-wrap gap-2">
+        <Button size="sm" onClick={onOnce}>Allow once</Button>
+        <Button size="sm" variant="outline" onClick={onAlways}>Allow for this page</Button>
+        <Button size="sm" variant="ghost" onClick={onDeny}>Not now</Button>
+      </div>
+    </div>
   );
 }
 
