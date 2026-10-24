@@ -15,14 +15,14 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 - **Type:** Confirmed bug · Usability observation · Enhancement · Verification task
 - **Priority:** P1 data loss, privacy or blocks use · P2 accessibility, comprehension or overload · P3 polish · P4 later
 - **Status:** Reported → Investigating → Fix proposed → Fixed – awaiting verification → Verified → Closed. Also: Deferred · Won't fix · Possible duplicate of PEN-x
-- **Sources:** BR01 = Bug Report 01 · BR02 = Bug Report 02 (testing sessions) · M1 = Milestone 1 build review · BUG01-BUILD / BUG02-BUILD = fix builds
+- **Sources:** BR01 = Bug Report 01 · BR02 = Bug Report 02 · BR03 = Bug Report 03 (testing sessions) · M1 = Milestone 1 build review · BUG01-BUILD / BUG02-BUILD = fix builds
 
 ## Summary
 
 | ID | Title | Type | Category | Pri | Status | Source | Related |
 |---|---|---|---|---|---|---|---|
 | PEN-001 | Writing disappeared after leaving Penie open overnight | Confirmed bug (cause unconfirmed) | Saving & recovery | P1 | Verified in own browser (BR02); Lovable preview/app still differs | BR01, BR02 | PEN-003, PEN-004, PEN-018 |
-| PEN-002 | Conversation clears on reload | Usability observation | Companion | P3 | Deferred (by design, privacy) | BR01 | PEN-001 |
+| PEN-002 | Conversation clears on reload | Usability observation | Companion / privacy | P2 | Reopened (BR03) | BR01, BR03 | PEN-024, PEN-014 |
 | PEN-003 | Blank start looked the same as storage failure | Confirmed bug | Saving & recovery | P1 | Fixed – awaiting verification | BR01 investigation | PEN-001 |
 | PEN-004 | Saves not checked by reading back | Confirmed bug | Saving & recovery | P1 | Fixed – awaiting verification | BR01 investigation | PEN-001 |
 | PEN-005 | Selection highlight vanishes when clicking into Penie | Confirmed bug | Selection & sharing | P2 | Reopened (BR02) | BR01, BR02 | PEN-006, PEN-019, PEN-020 |
@@ -32,9 +32,9 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 | PEN-009 | Sharing preview not tested with a screen reader | Verification task | Accessibility | P2 | Outstanding | BUG02-BUILD | PEN-006 |
 | PEN-010 | AI content logging / retention | Verification task | Privacy | P1 | AI app context disabled (done); provider retention question open | M1 | PEN-017 |
 | PEN-011 | AI usage safeguards are best effort only | Enhancement | Reliability / cost | P2 | Outstanding (set workspace spending cap) | M1 | — |
-| PEN-012 | Penie's replies too long; cognitive overload | Usability observation | Companion voice | P2 | Reported | BR01 | PEN-013, PEN-024 |
-| PEN-013 | Formal language; Penie refers to herself in third person | Usability observation | Companion voice | P2 | Reported | BR01 | PEN-012, PEN-024 |
-| PEN-014 | Repetitive privacy messaging | Usability observation | Privacy / comprehension | P2 | Reported | BR01 | PEN-006 |
+| PEN-012 | Penie's replies too long, prescriptive, repetitive; cognitive overload | Usability observation | Companion voice | P2 | Reported (updated BR03) — next milestone | BR01, BR03 | PEN-013, PEN-024, PEN-029 |
+| PEN-013 | Formal language; third person; implies the writer is wrong | Usability observation | Companion voice | P2 | Reported (updated BR03) — next milestone | BR01, BR03 | PEN-012, PEN-029 |
+| PEN-014 | Repetitive privacy and permission messaging | Usability observation | Privacy / comprehension | P2 | Reported (updated BR03) | BR01, BR03 | PEN-006, PEN-024 |
 | PEN-015 | Typography and line spacing for comfortable reading | Usability observation | Editor / accessibility | P2 | Reported | BR01 | PEN-016 |
 | PEN-016 | Saved writing preferences (font, spacing, size) | Enhancement | Accessibility | P3 | Reported | BR01 | PEN-015 |
 | PEN-017 | Optional writing context and personalisation | Enhancement | Companion | P3 | Reported (needs privacy review) | BR01 | PEN-010 |
@@ -48,8 +48,10 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 | PEN-025 | Not clear how to leave focus mode; worry about losing writing | Usability observation | Accessibility | P2 | Reported | BR02 | PEN-026 |
 | PEN-026 | Focus mode button: moon icon + "Focus mode", aligned to writing-area edge, visible in focus mode | Enhancement | Editor | P3 | Reported | BR02 | PEN-025 |
 | PEN-027 | Move Export left of "Ask Penie"; "Download selection" vs "Download page" | Enhancement | Editor | P3 | Reported | BR02 | PEN-022 |
+| PEN-028 | Suggestions can't be applied; add Accept / Still thinking | Enhancement | Companion / editor | P2 | Reported | BR03 | Roadmap item 2, PEN-012 |
+| PEN-029 | Response quality differs between browser and Lovable app; one rewrite had a grammar error | Confirmed bug (quality) | Companion voice | P2 | Reported | BR03 | PEN-012, PEN-013 |
 
-**Recommended next order (24 Oct):** PEN-019 + PEN-020 (highlight) → PEN-021 + PEN-022 + PEN-023 (panel tidy-up) → PEN-025 + PEN-026 (focus mode) → PEN-012/013 (PEN-024 built 24 Oct, awaiting your check) → PEN-027 → remaining items (PEN-014, PEN-015, PEN-009). Enhancements follow the matching roadmap milestones.
+**Recommended next order (24 Oct, after BR03):** PEN-012 + PEN-013 (voice, next milestone, kept separate) → PEN-029 (response-quality checks) → PEN-028 (Accept / Still thinking) → PEN-014 (permission messaging) → PEN-002 (conversation persistence + Clear conversation) → PEN-019 + PEN-020 → PEN-021/022/023 → PEN-025/026 → PEN-027 → PEN-015, PEN-009. Enhancements follow the matching roadmap milestones.
 
 ---
 
@@ -68,8 +70,14 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 - **Source:** BR01. **Type:** Usability observation. **P3**
 - **Description:** The chat with Penie is lost after a reload.
 - **Findings:** By design. The conversation is held in memory only, for privacy.
-- **Status:** Deferred. Saving the conversation is a separate future decision.
-- **History:** 23 Oct — confirmed expected behaviour.
+- **Status:** Reopened (BR03). Oli now wants the conversation to survive refreshing or reopening Penie in the same browser, cleared only when asked.
+- **Requirements (for later build):**
+  - Keep saved history shown to the writer separate from the context sent to the AI.
+  - Restoring history must never grant page access or resend stored writing automatically.
+  - After permission is revoked (or expires on reload), don't resend earlier shared writing, including passages quoted in earlier messages.
+  - A working **Clear conversation** control ships in the same milestone.
+  - Page-reading permission stays temporary and is never saved.
+- **History:** 23 Oct — confirmed expected behaviour. 24 Oct — reopened by BR03; requirements recorded.
 
 ### PEN-003 — Blank start looked the same as storage failure
 - **Source:** BR01 investigation. **Type:** Confirmed bug. **P1**
@@ -128,18 +136,21 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 - **Source:** BR01. **Type:** Usability observation. **P2**
 - **Description:** replies are lengthy and overwhelming, especially for neurodivergent writers.
 - **Note:** wording to be confirmed against the original report.
-- **History:** 23 Oct — registered.
+- **BR03 findings:** replies are prescriptive, over-detailed and repetitive. Simple tasks should be done without repeatedly offering more help (e.g. "If you want, I can also help make it sound more natural…").
+- **History:** 23 Oct — registered. 24 Oct — BR03 findings added; chosen as next milestone with PEN-013.
 
 ### PEN-013 — Formal language; third-person self-references
 - **Source:** BR01. **Type:** Usability observation. **P2**
 - **Description:** Penie should sound conversational and speak as "I", not refer to herself as "Penie".
 - **Note:** likely shares a fix with PEN-012 (Penie's guidelines) but is kept separate. Wording to be confirmed against the original report.
+- **BR03 findings:** "bob should be Bob" implies the writer is wrong. Penie should separate creative choices from conventional rules and offer guidance without making the writer feel wrong ("nothing is a mistake, but creative interpretation with guidance").
+- **History:** 24 Oct — BR03 findings added; next milestone with PEN-012.
 
 ### PEN-014 — Repetitive privacy messaging
 - **Source:** BR01. **Type:** Usability observation. **P2**
 - **Description:** privacy notices and labels repeat too often and add noise.
 - **Note:** must keep showing clearly when writing leaves the browser. Related to the PEN-006 preview card. Wording to be confirmed.
-- **History:** 24 Oct — PEN-024 reworded the first-send notice and the line under the message box; repetition itself not yet addressed.
+- **History:** 24 Oct — PEN-024 reworded the first-send notice and the line under the message box; repetition itself not yet addressed. 24 Oct — BR03: permission state should be clear but unobtrusive, e.g. "Permission to read your writing" with a "Granted" control instead of "Stop"; remove the redundant "This message will be sent. Penie can read this page." line.
 
 ### PEN-015 — Typography and line spacing
 - **Source:** BR01. **Type:** Usability observation. **P2**
@@ -212,11 +223,28 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 - **Description:** move Export left of "Ask Penie", fixed in place even when selection details fade in. With a selection its label becomes "Download selection", otherwise "Download page" / "Export .txt".
 - **History:** 24 Oct — registered.
 
+### PEN-028 — Suggestions can't be applied; add Accept / Still thinking
+- **Source:** BR03. **Type:** Enhancement. **P2**
+- **Description:** asking Penie to apply changes only produced another chat reply; the page stayed the same. Under a suggested change, show **Accept** (applies only that change, with Undo) and **Still thinking** (changes nothing; message box returns to "When you're ready"). Wording to be decided.
+- **Requirements:**
+  - Before applying, check the original passage still matches what the suggestion was based on.
+  - Apply at the exact intended place, not the first matching text.
+  - If the passage has changed or can't be found safely, don't change the writing; explain instead.
+  - Every accepted change can be undone.
+- **Note:** this is the existing Future Roadmap item 2 (suggestion cards), not new duplicate work. Kept separate from the voice milestone.
+- **History:** 24 Oct — registered.
+
+### PEN-029 — Response quality differs between browser and Lovable app
+- **Source:** BR03. **Type:** Confirmed bug (quality). **P2**
+- **Description:** the same request gave different corrections in the browser and the Lovable app; one rewrite dropped "in" ("He lived a house like a slob").
+- **Testing focus:** grammatical accuracy, meaning preserved, consistency with Penie's voice guidelines. Different wording between replies is fine; introducing errors is not.
+- **History:** 24 Oct — registered.
+
 ---
 
 ## Future Roadmap (not issues, no PEN IDs)
 1. Brainstorm / Develop / Improve modes
-2. Suggestion cards with Insert / Replace
+2. Suggestion cards with Insert / Replace (see PEN-028)
 3. .txt export and refined send labels
 4. Accessibility review
 5. Apply the brand
