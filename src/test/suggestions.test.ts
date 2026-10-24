@@ -202,3 +202,26 @@ describe("PEN-028 multiple suggestions from one reply", () => {
     expect(applySuggestion(e, captureWriting(e), { original: "Bob", replacement: "Bob", reason: "r", before: "", after: "" })).toBe(false);
   });
 });
+
+describe("PEN-028 repeated-word context overlap (Oli, 24 Oct preview)", () => {
+  const lines = ["there was was a man named bob", "who lived in an slob house"];
+  // Exact proposal from the live model: before repeats the first "was" of original.
+  const dup = { original: "was was", replacement: "was", reason: "r", before: "there was ", after: " a man named bob" };
+  it("resolves the overlapping before-context to the only real occurrence", () => {
+    expect(resolveEditStart(lines.join("\n\n"), dup)).toBe(6);
+  });
+  it("accepts the repeated-word fix first, then the article fix, with Undo", () => {
+    const e = setup(lines), s = captureWriting(e);
+    expect(applySuggestion(e, s, dup)).toBe(true);
+    expect(applySuggestion(e, s, { original: "an slob", replacement: "a slob", reason: "r", before: "lived in ", after: " house" })).toBe(true);
+    expect(e.getText()).toBe("there was a man named bob\n\nwho lived in a slob house");
+    e.commands.undo(); e.commands.undo();
+    expect(e.getText()).toBe(lines.join("\n\n"));
+  });
+  it("still refuses when trimming leaves an ambiguous match", () => {
+    expect(resolveEditStart("there was was was a man", { ...dup, after: " a man" })).toBeUndefined();
+  });
+  it("never trims partial words", () => {
+    expect(resolveEditStart("I saw wash day", { original: "wash", replacement: "wish", reason: "r", before: "I saw wa", after: " day" })).toBeUndefined();
+  });
+});
