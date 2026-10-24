@@ -18,7 +18,9 @@ import { MAX_EXCERPT, PAGE_TOOL, contextFor, minimiseHistory, pageOutput, previe
 
 type Msg = UIMessage<{ excerpt?: string | undefined }>;
 
-export function CompanionPanel({ selectedText, getPage, captureWriting, applyEdit, pageAllowed, setPageAllowed, onClose }: {
+export function CompanionPanel({ open, selectedText, getPage, captureWriting, applyEdit, pageAllowed, setPageAllowed, onClose }: {
+  /** Panel stays mounted so the conversation survives close/reopen; hidden removes it from keyboard and screen-reader navigation. */
+  open: boolean;
   selectedText: string;
   getPage: () => string;
   captureWriting: (selection: boolean) => WritingSnapshot | undefined;
@@ -106,7 +108,7 @@ export function CompanionPanel({ selectedText, getPage, captureWriting, applyEdi
   };
 
   return (
-    <aside aria-label="Penie, your writing companion" className="flex w-full max-w-md flex-col border-l bg-card">
+    <aside aria-label="Penie, your writing companion" hidden={!open} className={`${open ? "flex" : "hidden"} w-full max-w-md flex-col border-l bg-card`}>
       <div className="flex items-center justify-between border-b px-4 py-2">
         <h2 className="font-semibold">Penie</h2>
         <Button variant="ghost" size="icon" aria-label="Close Penie" onClick={onClose}><X /></Button>
@@ -196,7 +198,7 @@ export function CompanionPanel({ selectedText, getPage, captureWriting, applyEdi
         </div>
       </form>
 
-      <AlertDialog open={askConsent} onOpenChange={setAskConsent}>
+      <AlertDialog open={open && askConsent} onOpenChange={setAskConsent}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Before Penie replies</AlertDialogTitle>

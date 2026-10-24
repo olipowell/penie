@@ -144,7 +144,7 @@ export function WritingSpace() {
             </div>
           </main>
         </div>
-        {open && <CompanionPanel selectedText={selectedText} getPage={() => editor?.getText({ blockSeparator: "\n\n" }) ?? ""} captureWriting={(selection) => editor ? captureWriting(editor, selection, selection ? 4000 : Infinity) : undefined} applyEdit={(snapshot, edit) => editor ? applySuggestion(editor, snapshot, edit) : false} pageAllowed={pageAllowed} setPageAllowed={setPageAllowed} onClose={() => setOpen(false)} />}
+        <CompanionPanel open={open} selectedText={selectedText} getPage={() => editor?.getText({ blockSeparator: "\n\n" }) ?? ""} captureWriting={(selection) => editor ? captureWriting(editor, selection, selection ? 4000 : Infinity) : undefined} applyEdit={(snapshot, edit) => editor ? applySuggestion(editor, snapshot, edit) : false} pageAllowed={pageAllowed} setPageAllowed={setPageAllowed} onClose={() => setOpen(false)} />
       </div>
     </TooltipProvider>
   );

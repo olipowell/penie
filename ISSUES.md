@@ -22,7 +22,7 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 | ID | Title | Type | Category | Pri | Status | Source | Related |
 |---|---|---|---|---|---|---|---|
 | PEN-001 | Writing disappeared after leaving Penie open overnight | Confirmed bug (cause unconfirmed) | Saving & recovery | P1 | Verified in own browser (BR02); Lovable preview/app still differs | BR01, BR02 | PEN-003, PEN-004, PEN-018 |
-| PEN-002 | Conversation clears on reload | Usability observation | Companion / privacy | P2 | Reopened (BR03) | BR01, BR03 | PEN-024, PEN-014 |
+| PEN-002 | Conversation clears on reload | Usability observation | Companion / privacy | P2 | Drawer close/reopen fixed – awaiting your check; reload persistence still deferred | BR01, BR03 | PEN-024, PEN-014 |
 | PEN-003 | Blank start looked the same as storage failure | Confirmed bug | Saving & recovery | P1 | Fixed – awaiting verification | BR01 investigation | PEN-001 |
 | PEN-004 | Saves not checked by reading back | Confirmed bug | Saving & recovery | P1 | Fixed – awaiting verification | BR01 investigation | PEN-001 |
 | PEN-005 | Selection highlight vanishes when clicking into Penie | Confirmed bug | Selection & sharing | P2 | Reopened (BR02) | BR01, BR02 | PEN-006, PEN-019, PEN-020 |
@@ -77,7 +77,7 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
   - After permission is revoked (or expires on reload), don't resend earlier shared writing, including passages quoted in earlier messages.
   - A working **Clear conversation** control ships in the same milestone.
   - Page-reading permission stays temporary and is never saved.
-- **History:** 23 Oct — confirmed expected behaviour. 24 Oct — reopened by BR03; requirements recorded.
+- **History:** 23 Oct — confirmed expected behaviour. 24 Oct — reopened by BR03; requirements recorded. 24 Oct — drawer close/reopen fixed (implementation transferred from Oli's verified local export): the panel now stays mounted and is only hidden, so the in-memory conversation, suggestion snapshots and pending page permission survive closing and reopening via either close button; revocation (Stop) also survives. Refresh/reload persistence remains deferred (no permanent conversation storage yet; a reload still clears chat and page-reading permission, as required). Tests: 4 new WritingSpace-level regression tests with the real CompanionPanel/useChat and simulated streams (both close buttons, no extra API request or storage writes on reopen, pending permission stays pending, revocation survives, fresh mount starts empty) — all pass; full suite 43/43; TypeScript clean; live preview check with a real reply passed. Awaiting Oli's check.
 
 ### PEN-003 — Blank start looked the same as storage failure
 - **Source:** BR01 investigation. **Type:** Confirmed bug. **P1**
