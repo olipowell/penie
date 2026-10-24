@@ -86,7 +86,7 @@ export async function streamPenie(request: Request, rawMessages: PenieMessage[],
   }
   const tools = {
     propose_edit: tool({
-      description: "Display one minimal spelling or grammar correction for the writer to Accept or leave unchanged. Only for text explicitly shared in this turn. Copy original exactly. before and after are short verbatim text immediately before and after original, excluding original itself, sufficient to identify exactly one occurrence. Use empty strings when no context is needed or available at a boundary. Never count character offsets or execute an edit yourself.",
+      description: "Display one minimal spelling or grammar correction for the writer to Accept or leave unchanged. Only for text explicitly shared in this turn. original and replacement contain ONLY the smallest changed word or phrase, never unchanged surrounding context or paragraph breaks. Copy original exactly. before and after are short verbatim text immediately before and after original, excluding original itself, sufficient to identify exactly one occurrence. Put ALL unchanged surrounding words in before/after, NOT original/replacement. Use empty strings when no context is needed or available at a boundary. For capitalising bob, original is bob and replacement is Bob. Never count character offsets or execute an edit yourself.",
       inputSchema: z.object({ original: z.string(), replacement: z.string(), reason: z.string(), before: z.string(), after: z.string() }).strict(),
       outputSchema: z.object({ displayed: z.boolean() }).strict(),
     }),
