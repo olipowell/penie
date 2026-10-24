@@ -35,6 +35,14 @@ describe("PEN-028 safe accepted corrections", () => {
     expect(applySuggestion(e, captureWriting(e), { ...correction, start: 4 })).toBe(true);
     expect(e.getText()).toBe("bob Bob");
   });
+  it("selection offsets target only the shared second occurrence", () => {
+    const e = setup(["bob bob"]);
+    e.commands.setTextSelection({ from: 5, to: 8 });
+    const snapshot = captureWriting(e, true);
+    expect(snapshot.text).toBe("bob");
+    expect(applySuggestion(e, snapshot, { ...correction, start: 0 })).toBe(true);
+    expect(e.getText()).toBe("bob Bob");
+  });
   it("fails without an authorised snapshot", () => {
     const e = setup();
     expect(applySuggestion(e, undefined, correction)).toBe(false);

@@ -16,7 +16,7 @@ export function captureWriting(editor: Editor, selection = false, limit = Infini
   doc.descendants((node, pos) => {
     if (pos >= to || pos + node.nodeSize <= from) return false;
     if (node.isTextblock) {
-      if (blocks++) { text += "\n\n"; positions.push(null, null); }
+      if (blocks++) { const separator = selection ? "\n" : "\n\n"; text += separator; for (const _ of separator) positions.push(null); }
     }
     if (node.isText && node.text) {
       const a = Math.max(0, from - pos), b = Math.min(node.text.length, to - pos);

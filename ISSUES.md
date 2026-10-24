@@ -48,7 +48,7 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 | PEN-025 | Not clear how to leave focus mode; worry about losing writing | Usability observation | Accessibility | P2 | Reported | BR02 | PEN-026 |
 | PEN-026 | Focus mode button: moon icon + "Focus mode", aligned to writing-area edge, visible in focus mode | Enhancement | Editor | P3 | Reported | BR02 | PEN-025 |
 | PEN-027 | Move Export left of "Ask Penie"; "Download selection" vs "Download page" | Enhancement | Editor | P3 | Reported | BR02 | PEN-022 |
-| PEN-028 | Suggestions can't be applied; add Accept / Still thinking | Enhancement | Companion / editor | P2 | Reported | BR03 | Roadmap item 2, PEN-012 |
+| PEN-028 | Suggestions can't be applied; add Accept / Still thinking | Enhancement | Companion / editor | P1 | Fixed — exact flow verified; awaiting Oli's check | BR03, 24 Oct focused test | Roadmap item 2, PEN-029 |
 | PEN-029 | Response quality differs between browser and Lovable app; one rewrite had a grammar error | Confirmed bug (quality) | Companion voice | P2 | Reported | BR03 | PEN-012, PEN-013 |
 
 **Current focus (24 Oct, Oli's instruction):** PEN-028 only, using PEN-029 to verify accuracy. All other issues paused; resume their development order only after the complete correction interaction works.
@@ -224,7 +224,7 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 - **History:** 24 Oct — registered.
 
 ### PEN-028 — Suggestions can't be applied; add Accept / Still thinking
-- **Source:** BR03. **Type:** Enhancement. **P2**
+- **Source:** BR03; Oli's 24 Oct focused correction brief. **Type:** Enhancement. **P1**
 - **Description:** asking Penie to apply changes only produced another chat reply; the page stayed the same. Under a suggested change, show **Accept** (applies only that change, with Undo) and **Still thinking** (changes nothing; message box returns to "When you're ready"). Wording to be decided.
 - **Requirements:**
   - Before applying, check the original passage still matches what the suggestion was based on.
@@ -232,13 +232,18 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
   - If the passage has changed or can't be found safely, don't change the writing; explain instead.
   - Every accepted change can be undone.
 - **Note:** this is the existing Future Roadmap item 2 (suggestion cards), not new duplicate work. Kept separate from the voice milestone.
-- **History:** 24 Oct — registered.
+- **Implemented:** structured `propose_edit` tool displays Accept / Still thinking using existing UI controls. The authorised text has a local-only document snapshot and character-to-editor position map. Accept rejects any changed document, mismatched offset or non-contiguous passage, applies only the mapped edit and isolates one undo step. Buttons do not send another AI request. Model/provider and wider voice unchanged; correction-specific instructions preserve verse and minimal changes.
+- **Automated verification:** unit tests cover exact Bob correction, single Undo, changed-document refusal, repeated-text location, selected second occurrence, no authorised snapshot, invalid offset and line-break refusal. Live Playwright test (`python3 tests/e2e/pen028.py`) ran Accept + Undo, Still thinking, and stale edit in fresh contexts against the real AI: each produced only bob → Bob, preserved both lines, called/in/rhyme/meaning; each used two requests for permission + correction and none for the actions. Screenshots inspected; no browser errors.
+- **Test failures resolved:** first unit run rejected an incorrect test/prompt offset (27; actual is 28). Initial browser test inserted synthetic line breaks; replaced with actual editor paragraphs. A later permission wait timed out after dependency optimisation reloaded the preview (visible in dev-server log); subsequent separate test and full three-scenario rerun passed. Not treated as complete until that full rerun succeeded.
+- **Outstanding:** Oli's own browser/desktop check, screen-reader check and broader spelling/grammar examples. AI accuracy for arbitrary prose is not guaranteed; PEN-029 stays open.
+- **History:** 24 Oct — registered. 24 Oct — implemented and exact end-to-end interaction verified; all unrelated issues paused.
 
 ### PEN-029 — Response quality differs between browser and Lovable app
 - **Source:** BR03. **Type:** Confirmed bug (quality). **P2**
 - **Description:** the same request gave different corrections in the browser and the Lovable app; one rewrite dropped "in" ("He lived a house like a slob").
 - **Testing focus:** grammatical accuracy, meaning preserved, consistency with Penie's voice guidelines. Different wording between replies is fine; introducing errors is not.
 - **Current verification:** PEN-028's exact two-line test must change only "bob" to "Bob"; preserve "called", "in", rhyme and line breaks. Accept, Still thinking, Undo and stale-edit refusal must be exercised end-to-end before PEN-028 is marked fixed.
+- **Result (24 Oct):** exact two-line example passed in three fresh real-AI scenarios (Accept/Undo, Still thinking, stale refusal); only bob → Bob was proposed. This verifies the targeted example, not general grammatical accuracy or browser-versus-desktop parity. Remains open for wider quality testing.
 - **History:** 24 Oct — registered. 24 Oct — seen again in the PEN-012/013 test: the example rewrite kept "lived a house" and joined two sentences with a comma. Voice was fine; accuracy remains open here.
 
 ---
