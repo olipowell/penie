@@ -22,7 +22,7 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 | ID | Title | Type | Category | Pri | Status | Source | Related |
 |---|---|---|---|---|---|---|---|
 | PEN-001 | Writing disappeared after leaving Penie open overnight | Confirmed bug (cause unconfirmed) | Saving & recovery | P1 | Verified in own browser (BR02); Lovable preview/app still differs | BR01, BR02 | PEN-003, PEN-004, PEN-018 |
-| PEN-002 | Conversation clears on reload | Usability observation | Companion / privacy | P2 | Reopened (BR03) | BR01, BR03 | PEN-024, PEN-014 |
+| PEN-002 | Conversation clears on reload | Usability observation | Companion / privacy | P2 | Drawer close/reopen fixed – awaiting your check; reload persistence still deferred | BR01, BR03 | PEN-024, PEN-014 |
 | PEN-003 | Blank start looked the same as storage failure | Confirmed bug | Saving & recovery | P1 | Fixed – awaiting verification | BR01 investigation | PEN-001 |
 | PEN-004 | Saves not checked by reading back | Confirmed bug | Saving & recovery | P1 | Fixed – awaiting verification | BR01 investigation | PEN-001 |
 | PEN-005 | Selection highlight vanishes when clicking into Penie | Confirmed bug | Selection & sharing | P2 | Reopened (BR02) | BR01, BR02 | PEN-006, PEN-019, PEN-020 |
