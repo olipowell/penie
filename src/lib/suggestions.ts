@@ -65,9 +65,10 @@ export function applySuggestion(editor: Editor, snapshot: WritingSnapshot | unde
   const start = resolveEditStart(snapshot.text, edit);
   if (start === undefined || original === replacement || replacement.includes("\n")) return false;
   const end = start + original.length;
-  // Refuse if this passage or its context overlaps a change already accepted from this reply.
-  const ctxFrom = start - (edit.before?.length ?? 0), ctxTo = end + (edit.after?.length ?? 0);
-  if (batch.applied.some(([a, b]) => ctxFrom < b && a < ctxTo || (a === b && a >= ctxFrom && a <= ctxTo))) return false;
+  // Refuse only if the passage itself overlaps a change already accepted from this reply.
+  // Its context may include an accepted change: anchors were verified in the authorised
+  // snapshot, and the expected-document check proves only this reply's edits happened since.
+  if (batch.applied.some(([a, b]) => start < b && a < end)) return false;
   const positions = snapshot.positions.slice(start, end);
   const first = positions[0];
   if (typeof first !== "number" || positions.length !== original.length || positions.some((p, i) => p !== first + i)) return false;
