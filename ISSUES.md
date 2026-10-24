@@ -51,7 +51,7 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 | PEN-028 | Suggestions can't be applied; add Accept / Still thinking | Enhancement | Companion / editor | P2 | Reported | BR03 | Roadmap item 2, PEN-012 |
 | PEN-029 | Response quality differs between browser and Lovable app; one rewrite had a grammar error | Confirmed bug (quality) | Companion voice | P2 | Reported | BR03 | PEN-012, PEN-013 |
 
-**Recommended next order (24 Oct, after BR03):** PEN-012 + PEN-013 (voice, next milestone, kept separate) → PEN-029 (response-quality checks) → PEN-028 (Accept / Still thinking) → PEN-014 (permission messaging) → PEN-002 (conversation persistence + Clear conversation) → PEN-019 + PEN-020 → PEN-021/022/023 → PEN-025/026 → PEN-027 → PEN-015, PEN-009. Enhancements follow the matching roadmap milestones.
+**Current focus (24 Oct, Oli's instruction):** PEN-028 only, using PEN-029 to verify accuracy. All other issues paused; resume their development order only after the complete correction interaction works.
 
 ---
 
@@ -238,6 +238,7 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 - **Source:** BR03. **Type:** Confirmed bug (quality). **P2**
 - **Description:** the same request gave different corrections in the browser and the Lovable app; one rewrite dropped "in" ("He lived a house like a slob").
 - **Testing focus:** grammatical accuracy, meaning preserved, consistency with Penie's voice guidelines. Different wording between replies is fine; introducing errors is not.
+- **Current verification:** PEN-028's exact two-line test must change only "bob" to "Bob"; preserve "called", "in", rhyme and line breaks. Accept, Still thinking, Undo and stale-edit refusal must be exercised end-to-end before PEN-028 is marked fixed.
 - **History:** 24 Oct — registered. 24 Oct — seen again in the PEN-012/013 test: the example rewrite kept "lived a house" and joined two sentences with a comma. Voice was fine; accuracy remains open here.
 
 ---
