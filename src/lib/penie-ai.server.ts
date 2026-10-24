@@ -60,6 +60,14 @@ export async function streamPenie(request: Request, rawMessages: PenieMessage[],
       }),
     },
   );
+  // Remind the model, right beside the newest message, that it can't see the page.
+  if (allowPageTool) {
+    const i = prepared.map((m) => m.role).lastIndexOf("user");
+    if (i >= 0) {
+      const m = prepared[i]!;
+      prepared[i] = { ...m, parts: [...m.parts, { type: "text", text: "\n\n<note>You cannot see the author's page. If this message is about their writing, call read_page now instead of replying or asking them to paste.</note>" }] };
+    }
+  }
   const tools = {
     read_page: tool({
       description: "Ask the author's permission to read their current page of writing. Use when they ask about their writing and nothing is shared.",
