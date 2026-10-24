@@ -45,17 +45,22 @@ function uniqueMatch(text: string, original: string, before: string, after: stri
 
 const isGap = (c: string) => c === "" || /\s/.test(c);
 
-/** Remove the longest whole-word overlap between a context edge and original. */
+/** Remove a whole-word piece of original that the context repeats at its edge (e.g. "there was " before "was was"). */
 function trimOverlap(context: string, original: string, edge: "start" | "end"): string {
-  for (let len = Math.min(context.length, original.length); len > 0; len--) {
+  for (let len = original.length - 1; len > 0; len--) {
     if (edge === "end") {
-      const piece = original.slice(0, len);
-      const rest = context.slice(0, context.length - len);
-      if (context.endsWith(piece) && /(^|\s)$/.test(rest) && isGap(original.charAt(len))) return rest;
+      // piece = leading words of original, followed in original by whitespace
+      const gap = original.charAt(len);
+      if (!/\s/.test(gap)) continue;
+      const tail = original.slice(0, len) + gap;
+      const rest = context.slice(0, context.length - tail.length);
+      if (context.endsWith(tail) && isGap(rest.charAt(rest.length - 1))) return rest;
     } else {
-      const piece = original.slice(original.length - len);
-      const rest = context.slice(len);
-      if (context.startsWith(piece) && /^(\s|$)/.test(rest) && isGap(original.charAt(original.length - len - 1))) return rest;
+      const gap = original.charAt(original.length - len - 1);
+      if (!/\s/.test(gap)) continue;
+      const head = gap + original.slice(original.length - len);
+      const rest = context.slice(head.length);
+      if (context.startsWith(head) && isGap(rest.charAt(0))) return rest;
     }
   }
   return context;

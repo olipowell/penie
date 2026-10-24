@@ -219,7 +219,7 @@ describe("PEN-028 repeated-word context overlap (Oli, 24 Oct preview)", () => {
     expect(e.getText()).toBe(lines.join("\n\n"));
   });
   it("still refuses when trimming leaves an ambiguous match", () => {
-    expect(resolveEditStart("there was was was a man", { ...dup, after: " a man" })).toBeUndefined();
+    expect(resolveEditStart("there was was a man; there was was a man", { ...dup, after: " a man" })).toBeUndefined();
   });
   it("never trims partial words", () => {
     expect(resolveEditStart("I saw wash day", { original: "wash", replacement: "wish", reason: "r", before: "I saw wa", after: " day" })).toBeUndefined();
