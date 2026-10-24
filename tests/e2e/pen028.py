@@ -31,6 +31,8 @@ async def scenario(browser, action, original=ORIGINAL):
     await page.get_by_role('button',name='Accept',exact=True).wait_for(timeout=90000)
     await page.wait_for_function("() => [...document.querySelectorAll('button')].some(b=>b.textContent==='Accept' && !b.disabled)")
     assert await card.count()==1, 'Expected only one correction'
+    await page.screenshot(path=str(SCREENSHOTS / (action + '-proposal.png')))
+    print('Synthetic test proposal:', await card.locator('del').inner_text(), '→', await card.locator('ins').inner_text())
     assert await card.locator('del').inner_text()=='bob'
     assert await card.locator('ins').inner_text()=='Bob'
     n=len(requests)
