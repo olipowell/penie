@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { Editor } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
-import { applySuggestion, captureWriting, resolveEditStart } from "@/lib/suggestions";
+import { applySuggestion, captureWriting, isActionable, resolveEditStart } from "@/lib/suggestions";
 
 const original = "There once was a man called bob\n\nHe lived in a house like a slob";
 const correction = { start: 28, original: "bob", replacement: "Bob", reason: "Names usually take a capital." };
@@ -171,5 +171,34 @@ describe("PEN-028 multiple suggestions from one reply", () => {
     const e = setup(lines), s = captureWriting(e);
     expect(applySuggestion(e, s, dup)).toBe(true);
     expect(applySuggestion(e, s, dup)).toBe(false);
+  });
+
+  // Oli's 24 Oct preview reports: context of one suggestion included a word another one changed.
+  const bobLines = ["There once was a man called bob", "he lived in an house"];
+  const bob = { original: "bob", replacement: "Bob", reason: "r", before: "a man called ", after: "\n\nhe lived" };
+  const he = { original: "he", replacement: "He", reason: "r", before: "called bob\n\n", after: " lived in an" };
+  const an = { original: "an", replacement: "a", reason: "r", before: "he lived in ", after: " house" };
+  const bobFixed = "There once was a man called Bob\n\nHe lived in a house";
+  for (const order of [[bob, he, an], [an, he, bob], [he, bob, an], [an, bob, he]]) {
+    it(`applies independent edits whose context includes another accepted change (${order.map((o) => o.original).join(", ")})`, () => {
+      const e = setup(bobLines), s = captureWriting(e);
+      for (const o of order) expect(applySuggestion(e, s, o)).toBe(true);
+      expect(e.getText()).toBe(bobFixed);
+      for (let i = 0; i < 3; i++) expect(e.commands.undo()).toBe(true);
+      expect(e.getText()).toBe(bobLines.join("\n\n"));
+    });
+  }
+  it("still refuses a stale context changed by the writer", () => {
+    const e = setup(bobLines), s = captureWriting(e);
+    expect(applySuggestion(e, s, bob)).toBe(true);
+    e.commands.insertContentAt(e.state.doc.content.size - 1, "!");
+    expect(applySuggestion(e, s, an)).toBe(false);
+    expect(e.getText()).toBe("There once was a man called Bob\n\nhe lived in an house!");
+  });
+  it("identical replacements are not actionable and never apply", () => {
+    expect(isActionable({ original: "Bob", replacement: "Bob", reason: "r" })).toBe(false);
+    expect(isActionable({ original: "bob", replacement: "Bob", reason: "r" })).toBe(true);
+    const e = setup(["Bob"]);
+    expect(applySuggestion(e, captureWriting(e), { original: "Bob", replacement: "Bob", reason: "r", before: "", after: "" })).toBe(false);
   });
 });
