@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { giveConsent, hasConsent } from "@/lib/autosave";
 import { Suggestion } from "@/components/Suggestion";
-import { EDIT_TOOL, type ProposedEdit, type WritingSnapshot } from "@/lib/suggestions";
+import { EDIT_TOOL, isActionable, type ProposedEdit, type WritingSnapshot } from "@/lib/suggestions";
 import { MAX_EXCERPT, PAGE_TOOL, contextFor, minimiseHistory, pageOutput, previewOf, type PageOutput } from "@/lib/selection";
 
 type Msg = UIMessage<{ excerpt?: string | undefined }>;
@@ -136,7 +136,7 @@ export function CompanionPanel({ open, selectedText, getPage, captureWriting, ap
               </div>
             ) : (
               <div key={m.id} className="space-y-2">
-                {edits.filter((p) => p.input && (p.state === "input-available" || p.state === "output-available")).map((p) => p.input && <Suggestion key={p.toolCallId} edit={p.input} ready={!busy} onAccept={() => applyEdit(editSnapshots.current.get(p.toolCallId), p.input as ProposedEdit)} />)}
+                {edits.filter((p) => isActionable(p.input) && (p.state === "input-available" || p.state === "output-available")).map((p) => p.input && <Suggestion key={p.toolCallId} edit={p.input} ready={!busy} onAccept={() => applyEdit(editSnapshots.current.get(p.toolCallId), p.input as ProposedEdit)} />)}
                 {pageParts.map((p) => <PageRequest key={p.toolCallId} part={p}
                   onOnce={() => answer(p.toolCallId, pageOutput(getPage()))}
                   onAlways={() => { setPageAllowed(true); answer(p.toolCallId, pageOutput(getPage())); }}

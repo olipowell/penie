@@ -6,6 +6,11 @@ export const EDIT_TOOL = "propose_edit";
 export type ProposedEdit = { start?: number; before?: string; after?: string; original: string; replacement: string; reason: string };
 export type WritingSnapshot = { text: string; positions: (number | null)[]; document: string };
 
+/** Only real changes can be shown as Accept cards; identical replacements (Bob → Bob) are dropped. */
+export function isActionable(edit: ProposedEdit | undefined): edit is ProposedEdit {
+  return !!edit && typeof edit.original === "string" && typeof edit.replacement === "string" && edit.original.length > 0 && edit.original !== edit.replacement;
+}
+
 /** Resolve verbatim anchors only within the authorised snapshot; never pick the first match. */
 export function resolveEditStart(text: string, edit: ProposedEdit): number | undefined {
   if (!edit.original) return undefined;
