@@ -142,7 +142,7 @@ export function WritingSpace() {
             </div>
           </main>
         </div>
-        {open && <CompanionPanel selectedText={selectedText} onClose={() => setOpen(false)} />}
+        {open && <CompanionPanel selectedText={selectedText} getPage={() => editor?.getText({ blockSeparator: "\n\n" }) ?? ""} pageAllowed={pageAllowed} setPageAllowed={setPageAllowed} onClose={() => setOpen(false)} />}
       </div>
     </TooltipProvider>
   );
