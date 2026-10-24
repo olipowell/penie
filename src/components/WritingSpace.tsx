@@ -14,6 +14,7 @@ type SaveState = { kind: "idle" | "saving" | "saved" | "error" | "restored" | "b
 export function WritingSpace() {
   const [save, setSave] = useState<SaveState>({ kind: "idle" });
   const [open, setOpen] = useState(false);
+  const [pageAllowed, setPageAllowed] = useState(false); // never persisted: reload resets
   const [focus, setFocus] = useState(false);
   const [temporary, setTemporary] = useState(false);
   const [, force] = useState(0);
