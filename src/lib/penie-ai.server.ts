@@ -80,11 +80,16 @@ export async function streamPenie(request: Request, rawMessages: PenieMessage[],
   if (allowPageTool) {
     const i = prepared.map((m) => m.role).lastIndexOf("user");
     if (i >= 0) {
-      const m = prepared[i]!;
-      prepared[i] = { ...m, parts: [...m.parts, { type: "text", text: "\n\n<note>You cannot see the author's page. If this message is about their writing, call read_page now instead of replying or asking them to paste.</note>" }] };
+      const m = prepared[i];
+      if (m) prepared[i] = { ...m, parts: [...m.parts, { type: "text", text: "\n\n<note>If no page text has been returned in this turn, you cannot see the author's page: call read_page for requests about the writing. If read_page already returned this turn's page, use that text now and propose minimal corrections.</note>" }] };
     }
   }
   const tools = {
+    propose_edit: tool({
+      description: "Display one minimal spelling or grammar correction for the writer to Accept or leave unchanged. Only for text explicitly shared in this turn. start is the zero-based character offset in the exact shared text; original must match at that offset. Never execute an edit yourself.",
+      inputSchema: z.object({ start: z.number().int(), original: z.string(), replacement: z.string(), reason: z.string() }).strict(),
+      outputSchema: z.object({ displayed: z.boolean() }).strict(),
+    }),
     read_page: tool({
       description: "Ask the author's permission to read their current page of writing. Use when they ask about their writing and nothing is shared.",
       inputSchema: z.object({}),
@@ -108,10 +113,10 @@ export async function streamPenie(request: Request, rawMessages: PenieMessage[],
 
   const result = streamText({
     model: provider.responses(MODEL),
-    system: PENIE_INSTRUCTIONS,
+    system: PENIE_INSTRUCTIONS + `\nAPPLICABLE CORRECTIONS\nFor spelling/grammar checks of writing shared in this turn, use propose_edit to present each genuine minimal correction, not a rewritten passage or instructions to chat again. Treat creative writing as creative: preserve rhyme, line breaks, meaning, voice and unrelated words. No stylistic synonyms or added punctuation merely to make verse formal prose. For "There once was a man called bob\\n\\nHe lived in a house like a slob", propose only "bob" → "Bob" (start 27); never change "called" or remove "in". Explain briefly that names conventionally take a capital. If nothing needs changing, say so briefly. Do not propose changes from earlier shared writing.`,
     messages: await convertToModelMessages(prepared, { tools }),
     // Offer the page tool only when nothing is selected (a selection always wins).
-    ...(allowPageTool ? { tools } : {}),
+    tools: allowPageTool ? tools : { propose_edit: tools.propose_edit },
     maxOutputTokens: LIMITS.maxOutputTokens,
     maxRetries: 0,
     abortSignal: request.signal,

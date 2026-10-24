@@ -12,13 +12,17 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { giveConsent, hasConsent } from "@/lib/autosave";
+import { Suggestion } from "@/components/Suggestion";
+import { EDIT_TOOL, type ProposedEdit, type WritingSnapshot } from "@/lib/suggestions";
 import { MAX_EXCERPT, PAGE_TOOL, contextFor, minimiseHistory, pageOutput, previewOf, type PageOutput } from "@/lib/selection";
 
 type Msg = UIMessage<{ excerpt?: string | undefined }>;
 
-export function CompanionPanel({ selectedText, getPage, pageAllowed, setPageAllowed, onClose }: {
+export function CompanionPanel({ selectedText, getPage, captureWriting, applyEdit, pageAllowed, setPageAllowed, onClose }: {
   selectedText: string;
   getPage: () => string;
+  captureWriting: (selection: boolean) => WritingSnapshot | undefined;
+  applyEdit: (snapshot: WritingSnapshot | undefined, edit: ProposedEdit) => boolean;
   /** "Allow for this page" — kept in memory only; a reload resets it. */
   pageAllowed: boolean;
   setPageAllowed: (v: boolean) => void;
@@ -28,6 +32,10 @@ export function CompanionPanel({ selectedText, getPage, pageAllowed, setPageAllo
   const [share, setShare] = useState(true);
   const [askConsent, setAskConsent] = useState(false);
   const pending = useRef<{ text: string; excerpt?: string | undefined } | null>(null);
+  const snapshotRef = useRef<WritingSnapshot | undefined>(undefined);
+  const editSnapshots = useRef(new Map<string, WritingSnapshot | undefined>());
+  const captureRef = useRef(captureWriting);
+  captureRef.current = captureWriting;
   const ctx = contextFor(selectedText, share);
   const excerpt = ctx.excerpt;
   // Refs so the transport/tool handler always see the latest choices.
@@ -46,17 +54,29 @@ export function CompanionPanel({ selectedText, getPage, pageAllowed, setPageAllo
   }));
   const { messages, sendMessage, status, stop, error, addToolOutput } = useChat<Msg>({
     transport,
-    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
+    sendAutomaticallyWhen: ({ messages }) => {
+      const last = messages.at(-1);
+      return !!last?.parts.some((p) => p.type === `tool-${PAGE_TOOL}`) && !last.parts.some((p) => p.type === `tool-${EDIT_TOOL}`) && lastAssistantMessageIsCompleteWithToolCalls({ messages });
+    },
     onToolCall: ({ toolCall }) => {
+      if (toolCall.toolName === EDIT_TOOL) {
+        editSnapshots.current.set(toolCall.toolCallId, snapshotRef.current);
+        // Resolved locally, never auto-send on Accept/Still thinking.
+        void addToolOutput({ tool: EDIT_TOOL as never, toolCallId: toolCall.toolCallId, output: { displayed: true } as never });
+        return;
+      }
       if (toolCall.toolName !== PAGE_TOOL) return;
       // Only auto-answer when the writer chose "Allow for this page"; otherwise the card asks.
       if (pageAllowedRef.current) {
+        snapshotRef.current = captureRef.current(false);
         void addToolOutput({ tool: PAGE_TOOL as never, toolCallId: toolCall.toolCallId, output: pageOutput(getPageRef.current()) as never });
       }
     },
   });
-  const answer = (toolCallId: string, output: PageOutput) =>
+  const answer = (toolCallId: string, output: PageOutput) => {
+    snapshotRef.current = "page" in output ? captureWriting(false) : undefined;
     void addToolOutput({ tool: PAGE_TOOL as never, toolCallId, output: output as never });
+  };
   const busy = status === "submitted" || status === "streaming";
   const previewId = useId();
   // Announce selection changes once they settle.
@@ -67,6 +87,7 @@ export function CompanionPanel({ selectedText, getPage, pageAllowed, setPageAllo
   }, [selectedText]);
 
   const doSend = (p: { text: string; excerpt?: string | undefined }) => {
+    snapshotRef.current = p.excerpt ? captureWriting(true) : undefined;
     sendMessage({ text: p.text, metadata: { excerpt: p.excerpt } });
     setInput("");
   };
@@ -101,6 +122,7 @@ export function CompanionPanel({ selectedText, getPage, pageAllowed, setPageAllo
           {messages.map((m) => {
             const text = m.parts.map((p) => (p.type === "text" ? p.text : "")).join("");
             const pageParts = m.parts.filter((p) => p.type === `tool-${PAGE_TOOL}`) as unknown as { toolCallId: string; state: string; output?: PageOutput }[];
+            const edits = m.parts.filter((p) => p.type === `tool-${EDIT_TOOL}`) as unknown as { toolCallId: string; state: string; input?: ProposedEdit }[];
             return m.role === "user" ? (
               <div key={m.id} className="ml-8 space-y-1">
                 {m.metadata?.excerpt && (
@@ -112,11 +134,12 @@ export function CompanionPanel({ selectedText, getPage, pageAllowed, setPageAllo
               </div>
             ) : (
               <div key={m.id} className="space-y-2">
+                {edits.filter((p) => p.input && (p.state === "input-available" || p.state === "output-available")).map((p) => p.input && <Suggestion key={p.toolCallId} edit={p.input} ready={!busy} onAccept={() => applyEdit(editSnapshots.current.get(p.toolCallId), p.input as ProposedEdit)} />)}
                 {pageParts.map((p) => <PageRequest key={p.toolCallId} part={p}
                   onOnce={() => answer(p.toolCallId, pageOutput(getPage()))}
                   onAlways={() => { setPageAllowed(true); answer(p.toolCallId, pageOutput(getPage())); }}
                   onDeny={() => answer(p.toolCallId, { denied: true })} />)}
-                {(text || pageParts.length === 0) && <div className="whitespace-pre-wrap text-sm leading-relaxed">{text || "…"}</div>}
+                {(text || (pageParts.length === 0 && edits.length === 0)) && <div className="whitespace-pre-wrap text-sm leading-relaxed">{text || "…"}</div>}
               </div>
             );
           })}
