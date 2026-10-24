@@ -1,5 +1,6 @@
 import type { Editor } from "@tiptap/core";
 import { closeHistory } from "@tiptap/pm/history";
+import { Mapping } from "@tiptap/pm/transform";
 
 export const EDIT_TOOL = "propose_edit";
 export type ProposedEdit = { start?: number; before?: string; after?: string; original: string; replacement: string; reason: string };
@@ -47,20 +48,39 @@ export function captureWriting(editor: Editor, selection = false, limit = Infini
   return { text: text.slice(0, limit), positions: positions.slice(0, limit), document: JSON.stringify(doc.toJSON()) };
 }
 
+/**
+ * Per-snapshot record of changes made by accepted suggestions from the same reply.
+ * `expected` is the document as it should look if only those accepted edits happened;
+ * any other change (typing, Undo) makes it differ and remaining suggestions are refused.
+ */
+type Batch = { expected: string; mapping: Mapping; applied: [number, number][] };
+const batches = new WeakMap<WritingSnapshot, Batch>();
+
 export function applySuggestion(editor: Editor, snapshot: WritingSnapshot | undefined, edit: ProposedEdit): boolean {
-  if (!snapshot || editor.isDestroyed || JSON.stringify(editor.state.doc.toJSON()) !== snapshot.document) return false;
+  if (!snapshot || editor.isDestroyed) return false;
+  const batch = batches.get(snapshot) ?? { expected: snapshot.document, mapping: new Mapping(), applied: [] };
+  if (JSON.stringify(editor.state.doc.toJSON()) !== batch.expected) return false;
   const { original, replacement } = edit;
+  // Anchors are always resolved in the original authorised text, never the edited document.
   const start = resolveEditStart(snapshot.text, edit);
-  if (start === undefined || original === replacement) return false;
-  const positions = snapshot.positions.slice(start, start + original.length);
-  const from = positions[0];
-  if (typeof from !== "number" || positions.length !== original.length || positions.some((p, i) => p !== from + i)) return false;
-  const to = from + original.length;
-  if (editor.state.doc.textBetween(from, to) !== original || replacement.includes("\n")) return false;
+  if (start === undefined || original === replacement || replacement.includes("\n")) return false;
+  const end = start + original.length;
+  // Refuse if this passage or its context overlaps a change already accepted from this reply.
+  const ctxFrom = start - (edit.before?.length ?? 0), ctxTo = end + (edit.after?.length ?? 0);
+  if (batch.applied.some(([a, b]) => ctxFrom < b && a < ctxTo || (a === b && a >= ctxFrom && a <= ctxTo))) return false;
+  const positions = snapshot.positions.slice(start, end);
+  const first = positions[0];
+  if (typeof first !== "number" || positions.length !== original.length || positions.some((p, i) => p !== first + i)) return false;
+  const from = batch.mapping.map(first, 1), to = batch.mapping.map(first + original.length, -1);
+  if (to - from !== original.length || editor.state.doc.textBetween(from, to) !== original) return false;
   let tr = closeHistory(editor.state.tr);
   tr = replacement ? tr.insertText(replacement, from, to) : tr.delete(from, to);
   editor.view.dispatch(tr);
   // Isolate this accepted edit from typing before and after it: one Undo.
   editor.view.dispatch(closeHistory(editor.state.tr));
+  batch.mapping.appendMapping(tr.mapping);
+  batch.applied.push([start, end]);
+  batch.expected = JSON.stringify(editor.state.doc.toJSON());
+  batches.set(snapshot, batch);
   return true;
 }
