@@ -32,8 +32,8 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 | PEN-009 | Sharing preview not tested with a screen reader | Verification task | Accessibility | P2 | Outstanding | BUG02-BUILD | PEN-006 |
 | PEN-010 | AI content logging / retention | Verification task | Privacy | P1 | AI app context disabled (done); provider retention question open | M1 | PEN-017 |
 | PEN-011 | AI usage safeguards are best effort only | Enhancement | Reliability / cost | P2 | Outstanding (set workspace spending cap) | M1 | — |
-| PEN-012 | Penie's replies too long, prescriptive, repetitive; cognitive overload | Usability observation | Companion voice | P2 | Reported (updated BR03) — next milestone | BR01, BR03 | PEN-013, PEN-024, PEN-029 |
-| PEN-013 | Formal language; third person; implies the writer is wrong | Usability observation | Companion voice | P2 | Reported (updated BR03) — next milestone | BR01, BR03 | PEN-012, PEN-029 |
+| PEN-012 | Penie's replies too long, prescriptive, repetitive; cognitive overload | Usability observation | Companion voice | P2 | Fixed – awaiting your check | BR01, BR03 | PEN-013, PEN-024, PEN-029 |
+| PEN-013 | Formal language; third person; implies the writer is wrong | Usability observation | Companion voice | P2 | Fixed – awaiting your check | BR01, BR03 | PEN-012, PEN-029 |
 | PEN-014 | Repetitive privacy and permission messaging | Usability observation | Privacy / comprehension | P2 | Reported (updated BR03) | BR01, BR03 | PEN-006, PEN-024 |
 | PEN-015 | Typography and line spacing for comfortable reading | Usability observation | Editor / accessibility | P2 | Reported | BR01 | PEN-016 |
 | PEN-016 | Saved writing preferences (font, spacing, size) | Enhancement | Accessibility | P3 | Reported | BR01 | PEN-015 |
@@ -137,14 +137,14 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 - **Description:** replies are lengthy and overwhelming, especially for neurodivergent writers.
 - **Note:** wording to be confirmed against the original report.
 - **BR03 findings:** replies are prescriptive, over-detailed and repetitive. Simple tasks should be done without repeatedly offering more help (e.g. "If you want, I can also help make it sound more natural…").
-- **History:** 23 Oct — registered. 24 Oct — BR03 findings added; chosen as next milestone with PEN-013.
+- **History:** 23 Oct — registered. 24 Oct — BR03 findings added; chosen as next milestone with PEN-013. 24 Oct — built: voice card in Penie's instructions (brief replies, do the task then stop, no trailing offers, at most one question, no repetition) with good/bad examples. Test: "hi" → "Hi! What are you working on?"; punctuation check → three short bullet tweaks, no trailing offer. Awaiting Oli's check.
 
 ### PEN-013 — Formal language; third-person self-references
 - **Source:** BR01. **Type:** Usability observation. **P2**
 - **Description:** Penie should sound conversational and speak as "I", not refer to herself as "Penie".
 - **Note:** likely shares a fix with PEN-012 (Penie's guidelines) but is kept separate. Wording to be confirmed against the original report.
 - **BR03 findings:** "bob should be Bob" implies the writer is wrong. Penie should separate creative choices from conventional rules and offer guidance without making the writer feel wrong ("nothing is a mistake, but creative interpretation with guidance").
-- **History:** 24 Oct — BR03 findings added; next milestone with PEN-012.
+- **History:** 24 Oct — BR03 findings added; next milestone with PEN-012. 24 Oct — built: speaks as "I", never third person; never says "should be"/"wrong"/"error"; conventions framed as options ("usually takes a capital, unless that's your choice"); unusual spellings may be intentional. Awaiting Oli's check.
 
 ### PEN-014 — Repetitive privacy messaging
 - **Source:** BR01. **Type:** Usability observation. **P2**
@@ -238,7 +238,7 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 - **Source:** BR03. **Type:** Confirmed bug (quality). **P2**
 - **Description:** the same request gave different corrections in the browser and the Lovable app; one rewrite dropped "in" ("He lived a house like a slob").
 - **Testing focus:** grammatical accuracy, meaning preserved, consistency with Penie's voice guidelines. Different wording between replies is fine; introducing errors is not.
-- **History:** 24 Oct — registered.
+- **History:** 24 Oct — registered. 24 Oct — seen again in the PEN-012/013 test: the example rewrite kept "lived a house" and joined two sentences with a comma. Voice was fine; accuracy remains open here.
 
 ---
 
