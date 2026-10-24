@@ -18,7 +18,9 @@ import { MAX_EXCERPT, PAGE_TOOL, contextFor, minimiseHistory, pageOutput, previe
 
 type Msg = UIMessage<{ excerpt?: string | undefined }>;
 
-export function CompanionPanel({ selectedText, getPage, captureWriting, applyEdit, pageAllowed, setPageAllowed, onClose }: {
+export function CompanionPanel({ open, selectedText, getPage, captureWriting, applyEdit, pageAllowed, setPageAllowed, onClose }: {
+  /** Panel stays mounted so the conversation survives close/reopen; hidden removes it from keyboard and screen-reader navigation. */
+  open: boolean;
   selectedText: string;
   getPage: () => string;
   captureWriting: (selection: boolean) => WritingSnapshot | undefined;
