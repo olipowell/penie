@@ -64,6 +64,7 @@ export async function streamPenie(request: Request, rawMessages: PenieMessage[],
     read_page: tool({
       description: "Ask the author's permission to read their current page of writing. Use when they ask about their writing and nothing is shared.",
       inputSchema: z.object({}),
+      outputSchema: z.any(),
     }),
   };
 
@@ -86,7 +87,7 @@ export async function streamPenie(request: Request, rawMessages: PenieMessage[],
     system: PENIE_INSTRUCTIONS,
     messages: await convertToModelMessages(prepared, { tools }),
     // Offer the page tool only when nothing is selected (a selection always wins).
-    tools: allowPageTool ? tools : undefined,
+    ...(allowPageTool ? { tools } : {}),
     maxOutputTokens: LIMITS.maxOutputTokens,
     maxRetries: 0,
     abortSignal: request.signal,
