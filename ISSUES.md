@@ -48,7 +48,7 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 | PEN-025 | Not clear how to leave focus mode; worry about losing writing | Usability observation | Accessibility | P2 | Reported | BR02 | PEN-026 |
 | PEN-026 | Focus mode button: moon icon + "Focus mode", aligned to writing-area edge, visible in focus mode | Enhancement | Editor | P3 | Reported | BR02 | PEN-025 |
 | PEN-027 | Move Export left of "Ask Penie"; "Download selection" vs "Download page" | Enhancement | Editor | P3 | Reported | BR02 | PEN-022 |
-| PEN-028 | Suggestions can't be applied; add Accept / Still thinking | Enhancement | Companion / editor | P1 | Fixed — exact flow verified; awaiting Oli's check | BR03, 24 Oct focused test | Roadmap item 2, PEN-029 |
+| PEN-028 | Suggestions can't be applied; add Accept / Still thinking | Enhancement | Companion / editor | P1 | Reopened — contextual matching built; verification in progress | BR03, 24 Oct focused test | Roadmap item 2, PEN-029 |
 | PEN-029 | Response quality differs between browser and Lovable app; one rewrite had a grammar error | Confirmed bug (quality) | Companion voice | P2 | Reported | BR03 | PEN-012, PEN-013 |
 
 **Current focus (24 Oct, Oli's instruction):** PEN-028 only, using PEN-029 to verify accuracy. All other issues paused; resume their development order only after the complete correction interaction works.
@@ -237,6 +237,7 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 - **Test failures resolved:** first unit run rejected an incorrect test/prompt offset (27; actual is 28). Initial browser test inserted synthetic line breaks; replaced with actual editor paragraphs. A later permission wait timed out after dependency optimisation reloaded the preview (visible in dev-server log); subsequent separate test and full three-scenario rerun passed. Not treated as complete until that full rerun succeeded.
 - **Outstanding:** Oli's own browser/desktop check, screen-reader check and broader spelling/grammar examples. AI accuracy for arbitrary prose is not guaranteed; PEN-029 stays open.
 - **History:** 24 Oct — registered. 24 Oct — implemented and exact end-to-end interaction verified; all unrelated issues paused.
+- **History:** 24 Oct, follow-up — Oli reported the safety refusal on Accept and approved contextual matching. Confirmed the old contract required AI-counted offsets and the original test prompt supplied a hardcoded offset; this does not prove the cause of Oli's specific refusal without that proposal. Replaced new proposals with verbatim original/before/after anchors, resolving only a unique exact match in the authorised snapshot. No fuzzy/nearest/first-match fallback; unchanged-document, mapped-position and Undo safeguards remain. Added tests for arbitrary text, repeated/ambiguous passages, incorrect context, boundaries, Unicode, selection scope and stale writing. Verification in progress; no unrelated issues changed.
 
 ### PEN-029 — Response quality differs between browser and Lovable app
 - **Source:** BR03. **Type:** Confirmed bug (quality). **P2**
