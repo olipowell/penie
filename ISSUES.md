@@ -49,7 +49,7 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 | PEN-026 | Focus mode button: moon icon + "Focus mode", aligned to writing-area edge, visible in focus mode | Enhancement | Editor | P3 | Reported | BR02 | PEN-025 |
 | PEN-027 | Move Export left of "Ask Penie"; "Download selection" vs "Download page" | Enhancement | Editor | P3 | Reported | BR02 | PEN-022 |
 
-**Recommended next order (24 Oct):** PEN-019 + PEN-020 (highlight) → PEN-021 + PEN-022 + PEN-023 (panel tidy-up) → PEN-025 + PEN-026 (focus mode) → PEN-024 privacy decision, then PEN-012/013/024 together → PEN-027 → remaining items (PEN-014, PEN-015, PEN-009). Enhancements follow the matching roadmap milestones.
+**Recommended next order (24 Oct):** PEN-019 + PEN-020 (highlight) → PEN-021 + PEN-022 + PEN-023 (panel tidy-up) → PEN-025 + PEN-026 (focus mode) → PEN-012/013 (PEN-024 built 24 Oct, awaiting your check) → PEN-027 → remaining items (PEN-014, PEN-015, PEN-009). Enhancements follow the matching roadmap milestones.
 
 ---
 
@@ -139,6 +139,7 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 - **Source:** BR01. **Type:** Usability observation. **P2**
 - **Description:** privacy notices and labels repeat too often and add noise.
 - **Note:** must keep showing clearly when writing leaves the browser. Related to the PEN-006 preview card. Wording to be confirmed.
+- **History:** 24 Oct — PEN-024 reworded the first-send notice and the line under the message box; repetition itself not yet addressed.
 
 ### PEN-015 — Typography and line spacing
 - **Source:** BR01. **Type:** Usability observation. **P2**
