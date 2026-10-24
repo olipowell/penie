@@ -5,7 +5,8 @@ SCREENSHOTS.mkdir(parents=True, exist_ok=True)
 from playwright.async_api import async_playwright
 ORIGINAL = 'There once was a man called bob\n\nHe lived in a house like a slob'
 EXPECTED = ORIGINAL.replace('bob', 'Bob')
-async def scenario(browser, action):
+async def scenario(browser, action, original=ORIGINAL):
+    expected = original.replace('bob', 'Bob')
     context = await browser.new_context(viewport={'width':1280,'height':1800})
     page = await context.new_page()
     errors=[]; requests=[]
@@ -13,9 +14,9 @@ async def scenario(browser, action):
     page.on('request', lambda r: requests.append(r) if '/api/chat' in r.url else None)
     await page.goto('http://localhost:8080')
     editor=page.get_by_role('textbox',name='Your writing',exact=True)
-    await editor.fill(ORIGINAL.split('\n\n')[0])
+    await editor.fill(original.split('\n\n')[0])
     await editor.press('Enter')
-    await page.keyboard.insert_text(ORIGINAL.split('\n\n')[1])
+    await page.keyboard.insert_text(original.split('\n\n')[1])
     await page.get_by_role('button',name='Ask Penie',exact=True).click()
     await page.get_by_role('textbox',name='Message Penie').fill('Check my spelling and grammar.')
     await page.get_by_role('button',name='Send',exact=True).click()
@@ -35,20 +36,20 @@ async def scenario(browser, action):
     n=len(requests)
     if action=='accept':
         await page.get_by_role('button',name='Accept',exact=True).click()
-        assert await editor.evaluate("e => [...e.children].map(p=>p.textContent).join('\\n\\n')")==EXPECTED
+        assert await editor.evaluate("e => [...e.children].map(p=>p.textContent).join('\\n\\n')")==expected
         await page.screenshot(path=str(SCREENSHOTS / 'accept.png'))
         await page.get_by_role('button',name='Undo (Ctrl/Cmd+Z)',exact=True).click()
-        assert await editor.evaluate("e => [...e.children].map(p=>p.textContent).join('\\n\\n')")==ORIGINAL
+        assert await editor.evaluate("e => [...e.children].map(p=>p.textContent).join('\\n\\n')")==original
     elif action=='thinking':
         await page.get_by_role('button',name='Still thinking',exact=True).click()
-        assert await editor.evaluate("e => [...e.children].map(p=>p.textContent).join('\\n\\n')")==ORIGINAL
+        assert await editor.evaluate("e => [...e.children].map(p=>p.textContent).join('\\n\\n')")==original
         await page.screenshot(path=str(SCREENSHOTS / 'thinking.png'))
     else:
         await editor.click()
         await editor.press('Control+End')
         await page.keyboard.insert_text('!')
         await page.get_by_role('button',name='Accept',exact=True).click()
-        assert await editor.evaluate("e => [...e.children].map(p=>p.textContent).join('\\n\\n')")==ORIGINAL+'!'
+        assert await editor.evaluate("e => [...e.children].map(p=>p.textContent).join('\\n\\n')")==original+'!'
         assert await card.get_by_role('status').inner_text() == "Your writing has changed, or this passage couldn't be identified safely. Nothing was changed. Ask me to check it again."
         await page.screenshot(path=str(SCREENSHOTS / 'stale.png'))
     await page.wait_for_timeout(1500)
@@ -63,5 +64,7 @@ async def main():
             await scenario(browser,action)
             # Stay below the existing 8 requests/minute safeguard.
             await asyncio.sleep(22)
+        # Different prose and position: no exact offset supplied by the prompt.
+        await scenario(browser, 'accept', 'Yesterday, I met bob by the river.\n\nWe watched the birds together.')
         await browser.close()
 asyncio.run(main())
