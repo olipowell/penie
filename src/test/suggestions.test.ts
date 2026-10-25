@@ -225,3 +225,24 @@ describe("PEN-028 repeated-word context overlap (Oli, 24 Oct preview)", () => {
     expect(resolveEditStart("I saw wash day", { original: "wash", replacement: "wish", reason: "r", before: "I saw wa", after: " day" })).toBeUndefined();
   });
 });
+
+describe("PEN-028 malformed live anchors stay refused (synthetic reproduction, 25 Oct)", () => {
+  const text = "there was was a man named bob\n\nwho lived in an house";
+  it("refuses before/after that omit the boundary space", () => {
+    expect(resolveEditStart(text, { original: "was was", replacement: "was", reason: "r", before: "there", after: "a man named bob" })).toBeUndefined();
+  });
+  it("refuses a boundary space duplicated in original and after", () => {
+    expect(resolveEditStart(text, { original: "an ", replacement: "a ", reason: "r", before: "lived in ", after: " house" })).toBeUndefined();
+  });
+  it("refuses capitalised context that is not verbatim", () => {
+    expect(resolveEditStart(text, { original: "was was", replacement: "was", reason: "r", before: "There ", after: " a man" })).toBeUndefined();
+  });
+  it("resolves the well-formed contract where each boundary space appears once", () => {
+    expect(resolveEditStart(text, { original: "was was", replacement: "was", reason: "r", before: "there ", after: " a man" })).toBe(6);
+    expect(resolveEditStart(text, { original: "an", replacement: "a", reason: "r", before: "lived in ", after: " house" })).toBe(text.indexOf("an house"));
+  });
+  it("keeps legitimate whitespace edits in original", () => {
+    const t = "a  big dog";
+    expect(resolveEditStart(t, { original: "  ", replacement: " ", reason: "r", before: "a", after: "big" })).toBe(1);
+  });
+});
