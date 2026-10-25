@@ -12,6 +12,16 @@ import { applySuggestion, captureWriting } from "@/lib/suggestions";
 
 type SaveState = { kind: "idle" | "saving" | "saved" | "error" | "restored" | "backup" | "empty" | "unavailable"; at?: number };
 
+// Keep toolbar component identity stable when editor transactions rerender WritingSpace.
+const Tool = ({ label, onClick, disabled, children, pressed }: { label: string; onClick: () => void; disabled?: boolean; children: React.ReactNode; pressed?: boolean }) => (
+  <Tooltip>
+    <TooltipTrigger asChild>
+      <Button variant="ghost" size="icon" aria-label={label} aria-pressed={pressed} onClick={onClick} disabled={disabled}>{children}</Button>
+    </TooltipTrigger>
+    <TooltipContent>{label}</TooltipContent>
+  </Tooltip>
+);
+
 export function WritingSpace() {
   const [save, setSave] = useState<SaveState>({ kind: "idle" });
   const [open, setOpen] = useState(false);
@@ -111,15 +121,6 @@ export function WritingSpace() {
     : save.at ? `Saved at ${new Date(save.at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
     : "Not saved yet";
   const fullStatus = temporary && save.kind !== "unavailable" ? `${status} · Storage may be temporary — export a .txt to keep a copy` : status;
-
-  const Tool = ({ label, onClick, disabled, children, pressed }: { label: string; onClick: () => void; disabled?: boolean; children: React.ReactNode; pressed?: boolean }) => (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label={label} aria-pressed={pressed} onClick={onClick} disabled={disabled}>{children}</Button>
-      </TooltipTrigger>
-      <TooltipContent>{label}</TooltipContent>
-    </Tooltip>
-  );
 
   return (
     <TooltipProvider delayDuration={300}>
