@@ -256,6 +256,8 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 
 - **Report/investigation (26 Oct, Rita rhyme conversation):** Oli reports `in → in Cita` refused, `was → was fake` accepted, and `bakebut → bake but` refused twice, including after sharing a selected excerpt. Do not treat the previous Shift+Enter fix as resolution of these failures. The visible cards omit the model's before/after anchors and the local snapshot state, so this transcript alone cannot identify the refusal cause. A direct resolver check locates `bakebut` at offset 13 with exact surrounding context; missing-space or changed-case context is refused as designed. Original document structure and editing sequence requested before changing matching behaviour. No application changes or fresh full-suite run for this investigation.
 
+- **Follow-up (26 Oct):** Oli supplied the original four-line poem: its third line ends with “bake” and the fourth starts with “but”. Thus the reported joined `bakebut` excerpt differs from the supplied document; adding a space is not the correct repair for the original line break. Enter versus Shift+Enter and any intervening edits remain unconfirmed. Verify deployed selection serialization before another matching change. Direct inspection of askpenie.com was blocked by this environment's outbound proxy (CONNECT 403); this does not establish a website failure or a stale deployment.
+
 ### PEN-029 — Response quality differs between browser and Lovable app
 - **Source:** BR03. **Type:** Confirmed bug (quality). **P2**
 - **Description:** the same request gave different corrections in the browser and the Lovable app; one rewrite dropped "in" ("He lived a house like a slob").
