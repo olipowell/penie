@@ -50,7 +50,7 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 | PEN-027 | Move Export left of "Ask Penie"; "Download selection" vs "Download page" | Enhancement | Editor | P3 | Reported | BR02 | PEN-022 |
 | PEN-028 | Suggestions can't be applied; add Accept / Still thinking | Enhancement | Companion / editor | P1 | Repeated-word anchor fix verified in preview (24 Oct, after 1694585) – awaiting Oli's check | BR03, 24 Oct focused test | Roadmap item 2, PEN-029 |
 | PEN-029 | Response quality differs between browser and Lovable app; one rewrite had a grammar error | Confirmed bug (quality) | Companion voice | P2 | Reported (new examples 24 Oct, incl. inconsistent coverage) | BR03 | PEN-012, PEN-013 |
-| PEN-030 | Toolbar Undo button stops working after one click (Ctrl/Cmd+Z still works) | Confirmed bug | Editor | P2 | Fixed – awaiting Oli's Lovable check | PEN-028 multi-suggestion test, 24 Oct | PEN-028 |
+| PEN-030 | Toolbar Undo button stops working after one click (Ctrl/Cmd+Z still works) | Confirmed bug | Editor | P2 | Verified | PEN-028 multi-suggestion test, 24 Oct | PEN-028 |
 
 **Previous focus (24 Oct, Oli's instruction):** PEN-028 only, using PEN-029 to verify accuracy. All other issues paused; resume their development order only after the complete correction interaction works.
 
@@ -267,7 +267,8 @@ Organisational document only — not part of the app. Created 23 Oct 2026.
 - **Cause and fix (25 Oct):** `Tool` was defined inside `WritingSpace`, so each editor transaction gave React a new component type. Focusing a toolbar button blurs the editor and triggers a transaction, replacing the button between mouse-down and click. Moved the unchanged toolbar component to module scope so focus changes preserve the click target. History commands and suggestion logic are unchanged.
 - **Verification (25 Oct):** two regression tests use the real WritingSpace/editor, including mouse-down → focus/blur → mouse-up → click. Both fail on the original implementation and pass with the fix. They cover three writing steps, repeated Undo/Redo, disabled history boundaries, two accepted streamed corrections and no extra AI requests. Full suite: 63/63; TypeScript and production build pass. Chromium checks pass for actual typing, repeated toolbar Undo/Redo, keyboard Undo/Redo, and Accept → Undo → Redo with two deterministic correction cards; no browser errors or additional AI requests. Live AI not used; Lovable key unavailable in Codex.
 - **Validation notes (25 Oct):** added test-only Range geometry because jsdom lacks the browser layout API used by editor scrolling. An initial full-suite run timed out while build/type/browser checks ran concurrently; the normal standalone full suite passed in 4.67s without changing timeouts or assertions. Browser correction setup now uses a fresh context so a prior page's autosave cannot overwrite the fixture. Repository lint retains its pre-existing formatting/component-export failures; the new test file passes lint.
-- **Outstanding:** Oli's manual check in Lovable after the GitHub update: type three separate bursts, Undo and Redo each using the toolbar; then accept two corrections and Undo/Redo them one at a time. Keep PEN-030 awaiting that check.
+- **Status:** Verified.
+- **History (26 Oct):** Oli confirmed the manual Undo/Redo check worked on the published https://askpenie.com site, after confirming Lovable sync with the renamed `olipowell/penie` repository. The requested check covered repeated toolbar Undo/Redo for typing and individually accepted corrections. This records Oli's verification; no additional automated or browser tests were run for this documentation-only update.
 
 
 ---
