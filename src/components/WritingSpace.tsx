@@ -99,7 +99,8 @@ export function WritingSpace() {
   const text = editor?.getText() ?? "";
   const words = text.trim() ? text.trim().split(/\s+/).length : 0;
   const sel = editor?.state.selection;
-  const selectedText = editor && sel && !sel.empty ? editor.state.doc.textBetween(sel.from, sel.to, "\n") : "";
+  // Share exactly the text used to anchor corrections, including Shift+Enter breaks.
+  const selectedText = editor && sel && !sel.empty ? captureWriting(editor, true).text : "";
 
   const exportTxt = () => {
     const url = URL.createObjectURL(new Blob([editor?.getText({ blockSeparator: "\n\n" }) ?? ""], { type: "text/plain" }));
